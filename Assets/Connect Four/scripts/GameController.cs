@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConnectFour
 {
@@ -130,12 +131,19 @@ namespace ConnectFour
 					
 			if(!isPlayersTurn)
 			{
-				List<int> moves = GetPossibleMoves();
+				Dictionary<int, int> moves = GetPossibleMoves();
 
+				//default AI
 				if(moves.Count > 0)
 				{
-					int column = moves[Random.Range (0, moves.Count)];
+					bool defaultAI = true;
+					int column;
 
+					if(defaultAI)
+						column = Enumerable.ToList(moves.Keys)[Random.Range (0, moves.Count)];
+					else
+						column = GetBestMove();
+					
 					spawnPos = new Vector3(column, 0, 0);
 				}
 			}
@@ -243,21 +251,34 @@ namespace ConnectFour
 		/// Gets all the possible moves.
 		/// </summary>
 		/// <returns>The possible moves.</returns>
-		public List<int> GetPossibleMoves()
+		public Dictionary<int, int> GetPossibleMoves()
 		{
-			List<int> possibleMoves = new List<int>();
+			Dictionary<int, int> possibleMoves = new Dictionary<int, int>();
 			for (int x = 0; x < numColumns; x++)
 			{
 				for(int y = numRows - 1; y >= 0; y--)
 				{
 					if(field[x, y] == (int)Piece.Empty)
 					{
-						possibleMoves.Add(x);
+						possibleMoves.Add(x, y);
 						break;
 					}
 				}
 			}
 			return possibleMoves;
+		}
+
+		/// <summary>
+		/// Gets the best move with a MCTS.
+		/// </summary>
+		/// <returns>The best move (x value).</returns>
+		public int GetBestMove()
+		{
+			//building our tree and expanding it randomly
+
+			//applying min/max on our tree
+
+			return 0;
 		}
 
 		/// <summary>
