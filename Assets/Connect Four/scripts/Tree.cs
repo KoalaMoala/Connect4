@@ -11,7 +11,7 @@ namespace ConnectFour
 	public class Node
 	{
 		int[,] field;
-		int x previousMove;
+		int previousMove;
 		int value;
 		Player turn;
 
