@@ -33,14 +33,23 @@ namespace ConnectFour
 		// référence vers le jeu utilisé pour la simulation
     Field field {get; set;}
 
-
-		public Node (Field field)
+		public Node (Field field, Node parentNode = null)
 		{
 			wins = 0;
 			plays = 0;
       this.isPlayersTurn = field.IsPlayersTurn;
 			this.field = field;
 			children = new Dictionary<int, Node> ();
+			parent = parentNode;
+		}
+
+		/// <summary>
+		/// Adds a child to the node.
+		/// </summary>
+		/// <param name="node">The node to add to the child pool</param>
+		/// <param name="line">The line number used to get to this child play</param>
+		public void addChild(Node node, int line) {
+			children.Add (line, node);
 		}
 
     /// <summary>
@@ -62,10 +71,23 @@ namespace ConnectFour
     }
 
     /// <summary>
-    /// Instantiate a child below the selected node;
+    /// Instantiate a child below the selected node and attach it to the tree.
     /// </summary>
+		/// <returns>The new node created</returns>
     public Node Expand() {
-      return null;
+			// Copy of the possible plays list
+			List<int> drops = new List<int>(field.GetPossibleDrops ());
+			// For each available plays, remove the ones that have already been play.
+			foreach (int column in children.Keys) {
+				if (drops.Contains (column))
+					drops.Remove (column);
+			}
+			// Gets a line to play on.
+			int lineToPlay = UnityEngine.Random.Range (0, drops.Count);
+			Node n = new Node (field, this);
+			// Adds the child to the tree
+			addChild (n, lineToPlay);
+      return n;
     }
 
     /// <summary>
