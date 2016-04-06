@@ -7,12 +7,6 @@ namespace ConnectFour
 {
 	public class GameController : MonoBehaviour 
 	{
-		enum Piece
-		{
-			Empty = 0,
-			Blue = 1,
-			Red = 2
-		}
 
 		[Range(3, 8)]
 		public int numRows = 4;
@@ -53,9 +47,10 @@ namespace ConnectFour
 		/// 1 = Blue
 		/// 2 = Red
 		/// </summary>
-		int[,] field;
+		//int[,] field;
+    Field field;
 
-		bool isPlayersTurn = true;
+//		bool isPlayersTurn = true;
 		bool isLoading = true;
 		bool isDropping = false; 
 		bool mouseButtonPressed = false;
@@ -73,7 +68,7 @@ namespace ConnectFour
 
 			CreateField ();
 
-			isPlayersTurn = System.Convert.ToBoolean(Random.Range (0, 1));
+			//isPlayersTurn = System.Convert.ToBoolean(Random.Range (0, 1));
 
 			btnPlayAgainOrigColor = btnPlayAgain.GetComponent<Renderer>().material.color;
 		}
@@ -96,12 +91,14 @@ namespace ConnectFour
 			gameObjectField = new GameObject("Field");
 
 			// create an empty field and instantiate the cells
-			field = new int[numColumns, numRows];
+			//field = new int[numColumns, numRows];
+      field = new Field(numRows, numColumns, numPiecesToWin, allowDiagonally);
+
 			for(int x = 0; x < numColumns; x++)
 			{
 				for(int y = 0; y < numRows; y++)
 				{
-					field[x, y] = (int)Piece.Empty;
+					//field[x, y] = (int)Piece.Empty;
 					GameObject g = Instantiate(pieceField, new Vector3(x, y * -1, -1), Quaternion.identity) as GameObject;
 					g.transform.parent = gameObjectField.transform;
 				}
@@ -129,9 +126,9 @@ namespace ConnectFour
 		{
 			Vector3 spawnPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 					
-			if(!isPlayersTurn)
+			if(!field.isPlayersTurn)
 			{
-				Dictionary<int, int> moves = GetPossibleMoves();
+	/*			Dictionary<int, int> moves = field.GetPossibleMoves();
 
 				//default AI
 				if(moves.Count > 0)
@@ -140,16 +137,15 @@ namespace ConnectFour
 					int column;
 
 					if(defaultAI)
-						column = Enumerable.ToList(moves.Keys)[Random.Range (0, moves.Count)];
-					else
-						column = GetBestMove();
+					column = Enumerable.ToList(moves.Keys)[Random.Range (0, moves.Count)];
+					else*/
+					int column = field.GetRandomMove();
 					
 					spawnPos = new Vector3(column, 0, 0);
-				}
 			}
 
 			GameObject g = Instantiate(
-					isPlayersTurn ? pieceBlue : pieceRed, // is players turn = spawn blue, else spawn red
+					field.isPlayersTurn ? pieceBlue : pieceRed, // is players turn = spawn blue, else spawn red
 					new Vector3(
 					Mathf.Clamp(spawnPos.x, 0, numColumns-1), 
 					gameObjectField.transform.position.y + 1, 0), // spawn it above the first row
@@ -206,7 +202,7 @@ namespace ConnectFour
 				return;
 			}
 
-			if(isPlayersTurn)
+			if(field.isPlayersTurn)
 			{
 				if(gameObjectTurn == null)
 				{
@@ -251,7 +247,7 @@ namespace ConnectFour
 		/// Gets all the possible moves.
 		/// </summary>
 		/// <returns>The possible moves.</returns>
-		public Dictionary<int, int> GetPossibleMoves()
+/*		public Dictionary<int, int> GetPossibleMoves()
 		{
 			Dictionary<int, int> possibleMoves = new Dictionary<int, int>();
 			for (int x = 0; x < numColumns; x++)
@@ -267,19 +263,20 @@ namespace ConnectFour
 			}
 			return possibleMoves;
 		}
+  */  
 
 		/// <summary>
 		/// Gets the best move with a MCTS.
 		/// </summary>
 		/// <returns>The best move (x value).</returns>
-		public int GetBestMove()
+/*		public int GetBestMove()
 		{
 			//building our tree and expanding it randomly
 
 			//applying min/max on our tree
 
 			return 0;
-		}
+		}*/
 
 		/// <summary>
 		/// This method searches for a empty cell and lets 
@@ -298,7 +295,7 @@ namespace ConnectFour
 			startPosition = new Vector3(x, startPosition.y, startPosition.z);
 
 			// is there a free cell in the selected column?
-			bool foundFreeCell = false;
+/*			bool foundFreeCell = false;
 			for(int i = numRows-1; i >= 0; i--)
 			{
 				if(field[x, i] == 0)
@@ -309,10 +306,12 @@ namespace ConnectFour
 
 					break;
 				}
-			}
+			}*/
+      int y = field.DropInColumn(x);
 
-			if(foundFreeCell)
-			{
+      if (y != -1) {
+        endPosition = new Vector3(x, y * -1, startPosition.z);
+
 				// Instantiate a new Piece, disable the temporary
 				GameObject g = Instantiate (gObject) as GameObject;
 				gameObjectTurn.GetComponent<Renderer>().enabled = false;
@@ -340,7 +339,8 @@ namespace ConnectFour
 				while(isCheckingForWinner)
 					yield return null;
 
-				isPlayersTurn = !isPlayersTurn;
+				//isPlayersTurn = !isPlayersTurn;
+        field.SwitchPlayer();
 			}
 
 			isDropping = false;
@@ -355,7 +355,7 @@ namespace ConnectFour
 		{
 			isCheckingForWinner = true;
 
-			for(int x = 0; x < numColumns; x++)
+/*			for(int x = 0; x < numColumns; x++)
 			{
 				for(int y = 0; y < numRows; y++)
 				{
@@ -431,17 +431,18 @@ namespace ConnectFour
 				}
 
 				yield return null;
-			}
+			}*/
+      gameOver = field.CheckForWinner ();
 
 			// if Game Over update the winning text to show who has won
 			if(gameOver == true)
 			{
-				winningText.GetComponent<TextMesh>().text = isPlayersTurn ? playerWonText : playerLoseText;
+				winningText.GetComponent<TextMesh>().text = field.isPlayersTurn ? playerWonText : playerLoseText;
 			}
 			else 
 			{
 				// check if there are any empty cells left, if not set game over and update text to show a draw
-				if(!FieldContainsEmptyCell())
+				if(!field.ContainsEmptyCell())
 				{
 					gameOver = true;
 					winningText.GetComponent<TextMesh>().text = drawText;
@@ -457,7 +458,7 @@ namespace ConnectFour
 		/// check if the field contains an empty cell
 		/// </summary>
 		/// <returns><c>true</c>, if it contains empty cell, <c>false</c> otherwise.</returns>
-		bool FieldContainsEmptyCell()
+/*		bool FieldContainsEmptyCell()
 		{
 			for(int x = 0; x < numColumns; x++)
 			{
@@ -468,6 +469,6 @@ namespace ConnectFour
 				}
 			}
 			return false;
-		}
+		}*/
 	}
 }
