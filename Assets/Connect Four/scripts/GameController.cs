@@ -50,7 +50,7 @@ namespace ConnectFour
 		//int[,] field;
     Field field;
 
-//		bool isPlayersTurn = true;
+//		bool IsPlayersTurn = true;
 		bool isLoading = true;
 		bool isDropping = false; 
 		bool mouseButtonPressed = false;
@@ -68,7 +68,7 @@ namespace ConnectFour
 
 			CreateField ();
 
-			//isPlayersTurn = System.Convert.ToBoolean(Random.Range (0, 1));
+			//IsPlayersTurn = System.Convert.ToBoolean(Random.Range (0, 1));
 
 			btnPlayAgainOrigColor = btnPlayAgain.GetComponent<Renderer>().material.color;
 		}
@@ -126,7 +126,7 @@ namespace ConnectFour
 		{
 			Vector3 spawnPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 					
-			if(!field.isPlayersTurn)
+			if(!field.IsPlayersTurn)
 			{
 	/*			Dictionary<int, int> moves = field.GetPossibleMoves();
 
@@ -145,7 +145,7 @@ namespace ConnectFour
 			}
 
 			GameObject g = Instantiate(
-					field.isPlayersTurn ? pieceBlue : pieceRed, // is players turn = spawn blue, else spawn red
+					field.IsPlayersTurn ? pieceBlue : pieceRed, // is players turn = spawn blue, else spawn red
 					new Vector3(
 					Mathf.Clamp(spawnPos.x, 0, numColumns-1), 
 					gameObjectField.transform.position.y + 1, 0), // spawn it above the first row
@@ -202,7 +202,7 @@ namespace ConnectFour
 				return;
 			}
 
-			if(field.isPlayersTurn)
+			if(field.IsPlayersTurn)
 			{
 				if(gameObjectTurn == null)
 				{
@@ -301,7 +301,7 @@ namespace ConnectFour
 				if(field[x, i] == 0)
 				{
 					foundFreeCell = true;
-					field[x, i] = isPlayersTurn ? (int)Piece.Blue : (int)Piece.Red;
+					field[x, i] = IsPlayersTurn ? (int)Piece.Blue : (int)Piece.Red;
 					endPosition = new Vector3(x, i * -1, startPosition.z);
 
 					break;
@@ -339,7 +339,7 @@ namespace ConnectFour
 				while(isCheckingForWinner)
 					yield return null;
 
-				//isPlayersTurn = !isPlayersTurn;
+				//IsPlayersTurn = !IsPlayersTurn;
         field.SwitchPlayer();
 			}
 
@@ -361,10 +361,10 @@ namespace ConnectFour
 				{
 					// Get the Laymask to Raycast against, if its Players turn only include
 					// Layermask Blue otherwise Layermask Red
-					int layermask = isPlayersTurn ? (1 << 8) : (1 << 9);
+					int layermask = IsPlayersTurn ? (1 << 8) : (1 << 9);
 
 					// If its Players turn ignore red as Starting piece and wise versa
-					if(field[x, y] != (isPlayersTurn ? (int)Piece.Blue : (int)Piece.Red))
+					if(field[x, y] != (IsPlayersTurn ? (int)Piece.Blue : (int)Piece.Red))
 					{
 						continue;
 					}
@@ -437,7 +437,7 @@ namespace ConnectFour
 			// if Game Over update the winning text to show who has won
 			if(gameOver == true)
 			{
-				winningText.GetComponent<TextMesh>().text = field.isPlayersTurn ? playerWonText : playerLoseText;
+				winningText.GetComponent<TextMesh>().text = field.IsPlayersTurn ? playerWonText : playerLoseText;
 			}
 			else 
 			{

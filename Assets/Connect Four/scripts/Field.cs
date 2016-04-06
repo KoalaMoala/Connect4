@@ -15,16 +15,26 @@ namespace ConnectFour
       Red = 2
     }
 
-    public int numRows;
-    public int numColumns;
+    private int numRows;
+    public int NumRows {
+      get {return numRows;}
+    }
+    
+    private int numColumns;
+    public int NumColumns {
+      get {return numColumns;}
+    }
 
-    public int numPiecesToWin;
+    private int numPiecesToWin;
 
-    public bool allowDiagonally = true;
+    private bool allowDiagonally = true;
 
     protected int[,] field;
 
-    public bool isPlayersTurn { get; set; }
+    private bool isPlayersTurn;
+    public bool IsPlayersTurn {
+      get { return isPlayersTurn; }
+    }
 
   	// Field constructor
     public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally) {

@@ -23,7 +23,7 @@ namespace ConnectFour
 		{
 			wins = 0;
 			plays = 0;
-      this.isPlayersTurn = field.isPlayersTurn;
+      this.isPlayersTurn = field.IsPlayersTurn;
 			this.field = field;
 			childs = new Dictionary<int, Node> ();
 		}
@@ -34,36 +34,38 @@ namespace ConnectFour
     /// <returns>
     /// The selected node
     /// </returns>
-    private Node Select () {
+    public Node Select () {
       return null;
     }
 
     /// <summary>
     /// Instantiate a child below the selected node;
     /// </summary>
-    /// <param name="selectedNode">The node selected before</param>
-    private Node Expand(Node selectedNode) {
+    public Node Expand() {
       return null;
     }
 
     /// <summary>
     /// Simulate a game play based on the specified baseNode.
     /// </summary>
-    /// <param name="baseNode">The node to start the simulation from</param>
     /// <returns>True if the simulation leads to a win for the main player</returns>
-    private bool Simulate(Node expandedNode) {
+    public bool Simulate() {
       return true;
     }
 
     /// <summary>
-    /// Does the back propagation from the last leaf of the simulated game to the root.
+    /// Does the back propagation from this simulated game to the root.
     /// </summary>
-    /// <param name="simulatedNode">The node to start the back propagation from</param>
-    /// <param name="propagateWin">True if the value to propagate is a victory for the main player</param>
-    private void BackPropagate(Node simulatedNode, bool propagateWin) {
-      return;
+    /// <param name="playersVictory">True if the value to propagate is a victory for the main player</param>
+    public void BackPropagate(bool playersVictory) {
+      plays++;
+      if (isPlayersTurn == playersVictory) {
+        wins++;
+      }
+      if (parent != null) {
+        parent.BackPropagate (playersVictory);
+      }
     }
-
   } 
 
 	public class MonteCarloSearchTree
