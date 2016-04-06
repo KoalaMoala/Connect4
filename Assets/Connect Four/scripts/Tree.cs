@@ -80,6 +80,40 @@ namespace ConnectFour
 		// racine de l'arbre
 		Node rootNode;
 
+		/// <summary>
+		/// Select a node to expand in the current MCTS
+		/// </summary>
+		/// <returns>
+		/// The selected node
+		/// </returns>
+		private Node select () {
+			return null;
+		}
+
+		/// <summary>
+		/// Instantiate a child below the selected node;
+		/// </summary>
+		/// <param name="selectedNode">The node selected before</param>
+		private Node expand(Node selectedNode) {
+			return null;
+		}
+
+		/// <summary>
+		/// Simulate a game paly based on the specified baseNode.
+		/// </summary>
+		/// <param name="baseNode">The node to start the simulation from</param>
+		private void simulate(Node baseNode) {
+			return;
+		}
+
+		/// <summary>
+		/// Does the back propagation from the last leaf of the simulated game.
+		/// </summary>
+		/// <param name="leaf">The leaf to start the back propagation from</param>
+		private void doBackPropagation(Node leaf) {
+			return;
+		}
+
 		// retourne le coup le plus avantageux
 		public int FindBestMove (Field field, bool myTurn)
 		{
@@ -103,16 +137,16 @@ namespace ConnectFour
 		public void SimulatePlay (Node node)
 		{
 			// ligne et colonne dans laquelle vient d'être posée la pièce
-			int move = 0;
-			int movecolumn = 0;
+			int moveLine = 0;
+			int moveColumn = 0;
 			bool turn = true;
 			// copie de la liste parents-enfants
 			//Dictionary<int, Node> simulatedchilds = node.getChildren ();
 			// tant que la partie n'est pas terminée
-			while (node.getField ().CheckForWinner == false) {
+			while (node.getField ().CheckForWinner()) {
 				// on sélectionne un coup aléatoire dans la liste des coups possibles et on le joue
-				movecolumn = node.getField ().GetRandomMove ();
-				move = node.getField ().DropInColumn (movecolumn);
+				moveColumn = node.getField ().GetRandomMove ();
+				moveLine = node.getField ().DropInColumn (moveColumn);
 				//simulatedchilds.Add (movecolumn, new Node (node.getField (), turn));
 				// on passe au tour de l'autre joueur
 				node.getField ().SwitchPlayer ();
