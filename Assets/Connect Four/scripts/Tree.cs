@@ -27,6 +27,40 @@ namespace ConnectFour
 			this.field = field;
 			childs = new Dictionary<int, Node> ();
 		}
+
+		public Field getField ()
+		{
+			return this.field;
+		}
+
+		public bool getTurn ()
+		{
+			return this.myTurn;
+		}
+
+		public void setWins (int wins)
+		{
+			this.wins = wins;
+		}
+
+		public int getWins ()
+		{
+			return this.wins;
+		}
+
+		public void setPlays (int plays)
+		{
+			this.plays = plays;
+		}
+
+		public int getPlays ()
+		{
+			return this.plays;
+		}
+
+		public Dictionary<int, Node> getChildren(){
+			return this.childs;
+		}
 	}
 
 	public class MonteCarloSearchTree
@@ -65,8 +99,44 @@ namespace ConnectFour
 		}
 
 		// joue une partie aléatoire en partant du noeud sélectionné, puis met à jour les statistiques du chemin parcouru
-		public void SimulatePlay (Node node, Field field)
+		public void SimulatePlay (Node node)
 		{
+			// ligne et colonne dans laquelle vient d'être posée la pièce
+			int move = 0;
+			int movecolumn = 0;
+			// copie de la liste parents-enfants
+			Dictionary<int, Node> simulatedchilds = node.getChildren();
+			// tant que la partie n'est pas terminée
+			while (node.getField ().CheckForWinner == false) {
+				// on sélectionne un coup aléatoire dans la liste des coups possibles et on le joue
+				movecolumn = node.getField ().GetRandomMove ();
+				move = node.getField ().DropInColumn (movecolumn);
+				simulatedchilds.Add (movecolumn,new Node(node.getField(),true));
+				// on passe au tour de l'autre joueur
+				node.getField().SwitchPlayer();
+			}
+
+			// mise à jour des statistiques
+			// le joueur actif (ordinateur) a gagné
+			if (node.getField ().isPlayersTurn == true) {
+				// si le noeud appartient au joueur actif
+				if (node.getTurn () == true) {
+					node.setWins (node.getWins () + 1);
+					node.setPlays (node.getPlays () + 1);
+				} else {
+					node.setPlays (node.getPlays () + 1);
+				}
+			} 
+			// le joueur adverse a gagné
+			else {
+				// si le noeud appartient au joueur actif
+				if (node.getTurn () == true) {
+					node.setPlays (node.getPlays () + 1);
+				} else {
+					node.setWins (node.getWins () + 1);
+					node.setPlays (node.getPlays () + 1);
+				}
+			}
 		}
 	}
 }
