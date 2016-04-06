@@ -4,20 +4,35 @@ using System.Collections.Generic;
 
 namespace ConnectFour
 {
+  public class NodeEvaluator {
+    static double explorationParameter = Math.Sqrt(2);
+
+    static double Evaluate(Node node) {
+      return 0;
+    }
+  }
+
 	public class Node
 	{
 		// le nombre de simulation gagnées depuis ce noeud
-    int wins {get; set;}
+    private int wins;
+    public int Wins {
+      get {return wins;}
+    }
 		// Le nombre de simulation jouées depuis ce noeud
-    int plays {get; set;}
+    private int plays;
+    public int Plays {
+      get {return plays;}
+    }
 		// vrai si c'est le joueur qui a appelé MCTS qui doit joueur à ce noeud
     bool isPlayersTurn {get; set;}
 		// le noeud parent
     Node parent {get; set;}
 		// on associe état enfant à l'action qui mène à cette état
-		Dictionary<int, Node> childs;
+		Dictionary<int, Node> children;
 		// référence vers le jeu utilisé pour la simulation
     Field field {get; set;}
+
 
 		public Node (Field field)
 		{
@@ -25,7 +40,7 @@ namespace ConnectFour
 			plays = 0;
       this.isPlayersTurn = field.IsPlayersTurn;
 			this.field = field;
-			childs = new Dictionary<int, Node> ();
+			children = new Dictionary<int, Node> ();
 		}
 
     /// <summary>
@@ -35,6 +50,14 @@ namespace ConnectFour
     /// The selected node
     /// </returns>
     public Node Select () {
+      if (!field.ContainsEmptyCell() || field.CheckForWinner()) {
+        return null;
+      }
+      if (children.Count < field.GetPossibleDrops ().Count) {
+        return this;
+      } 
+      // TODO : Evaluer l'ensemble des enfants et appeler récursivement Select dessus
+      // (ne pas oublier d'appeler field.dropInColumn(meilleurMouvement) pour mettre à jour le field
       return null;
     }
 
