@@ -58,7 +58,8 @@ namespace ConnectFour
 			return this.plays;
 		}
 
-		public Dictionary<int, Node> getChildren(){
+		public Dictionary<int, Node> getChildren ()
+		{
 			return this.childs;
 		}
 	}
@@ -104,37 +105,46 @@ namespace ConnectFour
 			// ligne et colonne dans laquelle vient d'être posée la pièce
 			int move = 0;
 			int movecolumn = 0;
+			bool turn = true;
 			// copie de la liste parents-enfants
-			Dictionary<int, Node> simulatedchilds = node.getChildren();
+			//Dictionary<int, Node> simulatedchilds = node.getChildren ();
 			// tant que la partie n'est pas terminée
 			while (node.getField ().CheckForWinner == false) {
 				// on sélectionne un coup aléatoire dans la liste des coups possibles et on le joue
 				movecolumn = node.getField ().GetRandomMove ();
 				move = node.getField ().DropInColumn (movecolumn);
-				simulatedchilds.Add (movecolumn,new Node(node.getField(),true));
+				//simulatedchilds.Add (movecolumn, new Node (node.getField (), turn));
 				// on passe au tour de l'autre joueur
-				node.getField().SwitchPlayer();
-			}
-
-			// mise à jour des statistiques
-			// le joueur actif (ordinateur) a gagné
-			if (node.getField ().isPlayersTurn == true) {
-				// si le noeud appartient au joueur actif
-				if (node.getTurn () == true) {
-					node.setWins (node.getWins () + 1);
-					node.setPlays (node.getPlays () + 1);
+				node.getField ().SwitchPlayer ();
+				if (turn == true) {
+					turn = false;
 				} else {
-					node.setPlays (node.getPlays () + 1);
+					turn = true;
 				}
-			} 
+			}
+				
+			// mise à jour des statistiques pour tout le chemin traversé
+			foreach (Node n in node.getChildren()) {
+
+				// le joueur actif (ordinateur) a gagné
+				if (n.getField ().isPlayersTurn == true) {
+					// si le noeud appartient au joueur actif
+					if (n.getTurn () == true) {
+						n.setWins (node.getWins () + 1);
+						n.setPlays (node.getPlays () + 1);
+					} else {
+						n.setPlays (node.getPlays () + 1);
+					}
+				} 
 			// le joueur adverse a gagné
 			else {
-				// si le noeud appartient au joueur actif
-				if (node.getTurn () == true) {
-					node.setPlays (node.getPlays () + 1);
-				} else {
-					node.setWins (node.getWins () + 1);
-					node.setPlays (node.getPlays () + 1);
+					// si le noeud appartient au joueur actif
+					if (n.getTurn () == true) {
+						n.setPlays (node.getPlays () + 1);
+					} else {
+						n.setWins (node.getWins () + 1);
+						n.setPlays (node.getPlays () + 1);
+					}
 				}
 			}
 		}
