@@ -50,7 +50,12 @@ namespace ConnectFour
     /// </summary>
     /// <returns>True if the simulation leads to a win for the main player</returns>
     public bool Simulate() {
-      return true;
+      while (field.ContainsEmptyCell() && !field.CheckForWinner()) {
+        int nextMove = field.GetRandomMove ();
+        field.DropInColumn (nextMove);
+        field.SwitchPlayer ();
+      }
+      return !field.IsPlayersTurn;
     }
 
     /// <summary>
