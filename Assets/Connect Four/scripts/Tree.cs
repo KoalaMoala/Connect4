@@ -7,62 +7,64 @@ namespace ConnectFour
 	public class Node
 	{
 		// le nombre de simulation gagnées depuis ce noeud
-		int wins;
+    int wins {get; set;}
 		// Le nombre de simulation jouées depuis ce noeud
-		int plays;
+    int plays {get; set;}
 		// vrai si c'est le joueur qui a appelé MCTS qui doit joueur à ce noeud
-		bool myTurn;
+    bool isPlayersTurn {get; set;}
 		// le noeud parent
-		Node parent;
+    Node parent {get; set;}
 		// on associe état enfant à l'action qui mène à cette état
 		Dictionary<int, Node> childs;
 		// référence vers le jeu utilisé pour la simulation
-		Field field;
+    Field field {get; set;}
 
-		public Node (Field field, bool myTurn)
+		public Node (Field field)
 		{
 			wins = 0;
 			plays = 0;
-			this.myTurn = myTurn;
+      this.isPlayersTurn = field.isPlayersTurn;
 			this.field = field;
 			childs = new Dictionary<int, Node> ();
 		}
 
-		public Field getField ()
-		{
-			return this.field;
-		}
+    /// <summary>
+    /// Select a node to expand in the current MCTS
+    /// </summary>
+    /// <returns>
+    /// The selected node
+    /// </returns>
+    private Node Select () {
+      return null;
+    }
 
-		public bool getTurn ()
-		{
-			return this.myTurn;
-		}
+    /// <summary>
+    /// Instantiate a child below the selected node;
+    /// </summary>
+    /// <param name="selectedNode">The node selected before</param>
+    private Node Expand(Node selectedNode) {
+      return null;
+    }
 
-		public void setWins (int wins)
-		{
-			this.wins = wins;
-		}
+    /// <summary>
+    /// Simulate a game play based on the specified baseNode.
+    /// </summary>
+    /// <param name="baseNode">The node to start the simulation from</param>
+    /// <returns>True if the simulation leads to a win for the main player</returns>
+    private bool Simulate(Node expandedNode) {
+      return true;
+    }
 
-		public int getWins ()
-		{
-			return this.wins;
-		}
+    /// <summary>
+    /// Does the back propagation from the last leaf of the simulated game to the root.
+    /// </summary>
+    /// <param name="simulatedNode">The node to start the back propagation from</param>
+    /// <param name="propagateWin">True if the value to propagate is a victory for the main player</param>
+    private void BackPropagate(Node simulatedNode, bool propagateWin) {
+      return;
+    }
 
-		public void setPlays (int plays)
-		{
-			this.plays = plays;
-		}
-
-		public int getPlays ()
-		{
-			return this.plays;
-		}
-
-		public Dictionary<int, Node> getChildren ()
-		{
-			return this.childs;
-		}
-	}
+  } 
 
 	public class MonteCarloSearchTree
 	{
@@ -80,45 +82,11 @@ namespace ConnectFour
 		// racine de l'arbre
 		Node rootNode;
 
-		/// <summary>
-		/// Select a node to expand in the current MCTS
-		/// </summary>
-		/// <returns>
-		/// The selected node
-		/// </returns>
-		private Node select () {
-			return null;
-		}
-
-		/// <summary>
-		/// Instantiate a child below the selected node;
-		/// </summary>
-		/// <param name="selectedNode">The node selected before</param>
-		private Node expand(Node selectedNode) {
-			return null;
-		}
-
-		/// <summary>
-		/// Simulate a game paly based on the specified baseNode.
-		/// </summary>
-		/// <param name="baseNode">The node to start the simulation from</param>
-		private void simulate(Node baseNode) {
-			return;
-		}
-
-		/// <summary>
-		/// Does the back propagation from the last leaf of the simulated game.
-		/// </summary>
-		/// <param name="leaf">The leaf to start the back propagation from</param>
-		private void doBackPropagation(Node leaf) {
-			return;
-		}
-
 		// retourne le coup le plus avantageux
-		public int FindBestMove (Field field, bool myTurn)
+		public int FindBestMove (Field field)
 		{
 			currentStateField = field;
-			rootNode = new Node (simulatedStateField, myTurn);
+			rootNode = new Node (simulatedStateField);
 
 			int nbIteration = 1000;
 			for (int i = 0; i < nbIteration; i++) {
@@ -134,7 +102,7 @@ namespace ConnectFour
 		}
 
 		// joue une partie aléatoire en partant du noeud sélectionné, puis met à jour les statistiques du chemin parcouru
-		public void SimulatePlay (Node node)
+/*		public void SimulatePlay (Node node)
 		{
 			// ligne et colonne dans laquelle vient d'être posée la pièce
 			int moveLine = 0;
@@ -181,7 +149,7 @@ namespace ConnectFour
 					}
 				}
 			}
-		}
+		}*/
 	}
 }
 
