@@ -189,7 +189,7 @@ namespace ConnectFour
       double maxValue = -1;
       Node bestNode = null;
       foreach (Node child in children.Keys) {
-        double evaluation = child.wins / child.plays + Math.Sqrt (2 * Math.Log (nbSimulation) / child.plays);
+        double evaluation = (double)child.Wins / (double)child.Plays + Math.Sqrt (2 * Math.Log ((double)nbSimulation) / (double)child.Plays);
         if (maxValue < evaluation) {
           maxValue = evaluation;
           bestNode = child;
