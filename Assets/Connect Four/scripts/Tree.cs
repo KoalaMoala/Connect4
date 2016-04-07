@@ -186,6 +186,20 @@ namespace ConnectFour
 			}
 			return bestNode;
 		}
+
+    public int MostSelectedMove ()
+    {
+      double maxValue = -1;
+      int bestMove = -1;
+
+      foreach (var child in children) {
+        if (child.Key.Plays > maxValue) {
+          bestMove = child.Value;
+          maxValue = child.Key.Plays;
+        }
+      }
+      return bestMove;
+    }
   }
 
   public class MonteCarloSearchTree
@@ -225,7 +239,8 @@ namespace ConnectFour
 					expandedNode = selectedNode.Expand ();
 					expandedNode.BackPropagate (expandedNode.Simulate ());
 				}
-				choosedColumn = rootNode.getChildAction (rootNode.selectBestChild (rootNode.Plays));
+				//choosedColumn = rootNode.getChildAction (rootNode.selectBestChild (rootNode.Plays));
+        choosedColumn = rootNode.MostSelectedMove();
 			} else
 				choosedColumn = field.GetRandomMove ();
 				
