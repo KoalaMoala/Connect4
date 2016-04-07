@@ -162,7 +162,11 @@ namespace ConnectFour
         MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
       }
 //      Debug.Log (MonteCarloSearchTree.simulatedStateField.ToString ());
+<<<<<<< HEAD
       return false;
+=======
+			return true;
+>>>>>>> 226d50d98158c72989d137c43ac0add33d765379
     }
 
     /// <summary>
@@ -205,9 +209,10 @@ namespace ConnectFour
       Debug.Log ("Child selection :");
       foreach (var child in children) {
         Debug.Log (child.Value + " - " + child.Key.Wins + " - " + child.Key.Plays);
-        if (child.Key.Wins / child.Key.Plays > maxValue) {
+
+        if ((double)child.Key.Wins/(double)child.Key.Plays > maxValue) {
           bestMove = child.Value;
-          maxValue = child.Key.Wins / child.Key.Plays;
+          maxValue = (double)child.Key.Wins/(double)child.Key.Plays;
         }
       }
       return bestMove;
