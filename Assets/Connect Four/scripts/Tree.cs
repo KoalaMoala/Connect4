@@ -139,16 +139,17 @@ namespace ConnectFour
 		{
 			currentStateField = field;
 			rootNode = new Node (simulatedStateField);
+			Node selectedNode;
+			Node expandedNode;
 
 			int nbIteration = 1000;
 			for (int i = 0; i < nbIteration; i++) {
 				// copie profonde
-				simulatedStateField = currentStateField.Clone ();   
-				// TODO : Node selectedNode = rootNode.selection()
-				// TODO : Node expandedNode = selectedNode.expansion()
-				// TODO : expandedNode.simulation()
-				// TODO : expandedNode.retroPropagation()
+				simulatedStateField = currentStateField.Clone ();
 
+				selectedNode = rootNode.Select();
+				expandedNode = selectedNode.Expand();
+				expandedNode.BackPropagate(expandedNode.Simulate());
 			}
 			return 0;
 		}
