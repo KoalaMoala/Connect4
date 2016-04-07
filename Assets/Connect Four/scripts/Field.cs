@@ -233,5 +233,17 @@ namespace ConnectFour
     {
       return new Field (numRows, numColumns, numPiecesToWin, allowDiagonally, isPlayersTurn, field);
     }
+
+    public String ToString() {
+      String str = "Player";
+      str += isPlayersTurn ? "1\n" : "2\n";
+      for (int y = 0; y < numRows; y++) {
+        for (int x = 0; x < numColumns; x++) {
+          str += (field [x, y]).ToString ();
+        }
+        str += "\n";
+      }
+      return str;
+    }
   }
 }

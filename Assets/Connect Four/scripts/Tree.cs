@@ -1,4 +1,5 @@
-﻿using System;
+﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -148,10 +149,12 @@ namespace ConnectFour
     public bool Simulate ()
     {
 			while (MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () && !MonteCarloSearchTree.simulatedStateField.CheckForWinner ()) {
+        Debug.Log (MonteCarloSearchTree.simulatedStateField.ToString ());
 				int nextMove = MonteCarloSearchTree.simulatedStateField.GetRandomMove ();
 				MonteCarloSearchTree.simulatedStateField.DropInColumn (nextMove);
 				MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
       }
+      Debug.Log (MonteCarloSearchTree.simulatedStateField.ToString ());
 			return !MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
     }
 
@@ -230,7 +233,7 @@ namespace ConnectFour
 			int choosedColumn = 1;
 			// Inutile de lancer MCST le premier tour
 			if (field.PiecesNumber != 0) {
-				int nbIteration = 1000;
+				int nbIteration = 1;
 				for (int i = 0; i < nbIteration; i++) {
 					// copie profonde
 					simulatedStateField = currentStateField.Clone ();
