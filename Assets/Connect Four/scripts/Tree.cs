@@ -102,7 +102,7 @@ namespace ConnectFour
       Node bestNode = null;
 
 			// If not all plays have been tried
-			if (children.Keys.Count != 7)
+      if (children.Keys.Count != MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ().Count )
 				return this;
 			
 			bestNode = selectBestChild (nbSimulation);
@@ -121,13 +121,18 @@ namespace ConnectFour
     {
       // Copy of the possible plays list
 			List<int> drops = new List<int> (MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ());
+
+      //if selected node is a leaf
+      if (!MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () || MonteCarloSearchTree.simulatedStateField.CheckForWinner ())
+        return this;
+
       // For each available plays, remove the ones that have already been play.
       foreach (int column in children.Values) {
         if (drops.Contains (column))
           drops.Remove (column);
       }
       // Gets a line to play on.
-      int colToPlay = drops[ UnityEngine.Random.Range (0, drops.Count) ]; 
+      int colToPlay = drops[ UnityEngine.Random.Range (0, drops.Count-1) ]; 
       Node n = new Node (this);
       // Adds the child to the tree
 			addChild (n, colToPlay);
