@@ -96,16 +96,15 @@ namespace ConnectFour
     public Node Select (int nbSimulation)
     {
       //check for end game
-			if (!MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () || MonteCarloSearchTree.simulatedStateField.CheckForWinner ()) {
+			if (!MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () || MonteCarloSearchTree.simulatedStateField.CheckForVictory ()) {
         return this;
       }
-
-      Node bestNode = null;
 
 			// If not all plays have been tried
       if (children.Keys.Count != MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ().Count )
 				return this;
-			
+      
+      Node bestNode = null;
 			bestNode = selectBestChild (nbSimulation);
       // TODO : Evaluer l'ensemble des enfants et appeler récursivement Select dessus
       // (ne pas oublier d'appeler field.dropInColumn(meilleurMouvement) pour mettre à jour le field
@@ -120,12 +119,13 @@ namespace ConnectFour
     /// <returns>The new node created</returns>
     public Node Expand ()
     {
-      // Copy of the possible plays list
-			List<int> drops = new List<int> (MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ());
 
       //if selected node is a leaf
-      if (!MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () || MonteCarloSearchTree.simulatedStateField.CheckForWinner ())
+      if (!MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () || MonteCarloSearchTree.simulatedStateField.CheckForVictory ())
         return this;
+
+      // Copy of the possible plays list
+			List<int> drops = new List<int> (MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ());
 
       // For each available plays, remove the ones that have already been play.
       foreach (int column in children.Values) {
@@ -148,14 +148,19 @@ namespace ConnectFour
     /// <returns>True if the simulation leads to a win for the main player</returns>
     public bool Simulate ()
     {
-			while (MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () && !MonteCarloSearchTree.simulatedStateField.CheckForWinner ()) {
-        Debug.Log (MonteCarloSearchTree.simulatedStateField.ToString ());
-				int nextMove = MonteCarloSearchTree.simulatedStateField.GetRandomMove ();
-				MonteCarloSearchTree.simulatedStateField.DropInColumn (nextMove);
+      if (MonteCarloSearchTree.simulatedStateField.CheckForVictory ()) {
+        return !MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
+      }
+			while (MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell ()) {
+				int column = MonteCarloSearchTree.simulatedStateField.GetRandomMove ();
+				MonteCarloSearchTree.simulatedStateField.DropInColumn (column);
+        if (MonteCarloSearchTree.simulatedStateField.CheckForVictory ()) {
+          return MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
+        }
 				MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
       }
-      Debug.Log (MonteCarloSearchTree.simulatedStateField.ToString ());
-			return !MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
+//      Debug.Log (MonteCarloSearchTree.simulatedStateField.ToString ());
+			return false;
     }
 
     /// <summary>
@@ -194,11 +199,12 @@ namespace ConnectFour
     {
       double maxValue = -1;
       int bestMove = -1;
-
+      Debug.Log ("Child selection :");
       foreach (var child in children) {
-        if (child.Key.Plays > maxValue) {
+        Debug.Log (child.Value + " - " + child.Key.Wins + " - " + child.Key.Plays);
+        if (child.Key.Wins/child.Key.Plays > maxValue) {
           bestMove = child.Value;
-          maxValue = child.Key.Plays;
+          maxValue = child.Key.Wins/child.Key.Plays;
         }
       }
       return bestMove;
@@ -230,10 +236,10 @@ namespace ConnectFour
 
       Node selectedNode;
       Node expandedNode;
-			int choosedColumn = 1;
+			int choosedColumn = -1;
 			// Inutile de lancer MCST le premier tour
 			if (field.PiecesNumber != 0) {
-				int nbIteration = 1;
+				int nbIteration = 1000;
 				for (int i = 0; i < nbIteration; i++) {
 					// copie profonde
 					simulatedStateField = currentStateField.Clone ();

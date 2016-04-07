@@ -46,6 +46,10 @@ namespace ConnectFour
 			get { return piecesNumber; }
 		}
 
+    // memorize last move
+    private int dropColumn;
+    private int dropRow;
+
     // Field constructor
     public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally)
     {
@@ -62,15 +66,19 @@ namespace ConnectFour
           field [x, y] = (int)Piece.Empty;
         }
       }
+
+      dropColumn = 0;
+      dropRow = 0;
     }
 
-    public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally, bool isPlayersTurn, int[,] field)
+    public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally, bool isPlayersTurn, int piecesNumber ,int[,] field)
     {
       this.numRows = numRows;
       this.numColumns = numColumns;
       this.numPiecesToWin = numPiecesToWin;
       this.allowDiagonally = allowDiagonally;
       this.isPlayersTurn = isPlayersTurn;
+      this.piecesNumber = piecesNumber;
 
       this.field = new int[numColumns, numRows];
       for (int x = 0; x < numColumns; x++) {
@@ -137,6 +145,8 @@ namespace ConnectFour
           field [col, i] = isPlayersTurn ? (int)Piece.Blue : (int)Piece.Red;
 //        endPosition = new Vector3(x, i * -1, startPosition.z);
 					piecesNumber += 1;
+          dropColumn = col;
+          dropRow = i;
           return i;
         }
       }
@@ -216,22 +226,88 @@ namespace ConnectFour
       return false;
     }
 
-    // Vérifie si la grille contient encore des cellules vides
-    public bool ContainsEmptyCell ()
-    {
-      for (int x = 0; x < numColumns; x++) {
-        for (int y = 0; y < numRows; y++) {
-          if (field [x, y] == (int)Piece.Empty)
-            return true;
+    // Vérifie si la partie a été gagné en spécifiance quel est le dernier pion joué
+    public bool CheckForVictory() {
+      int colour = field [dropColumn, dropRow];
+      if (colour == 0) {
+        return false;
+      }
+
+      // Check for left alignment
+      if (dropColumn + 1 >= numPiecesToWin) {
+        int i = 1;
+        while (i < numPiecesToWin && field [dropColumn - i, dropRow] == colour) {
+          i++;
+        }
+        if (i == numPiecesToWin) {
+          return true;
+        }
+      }
+
+      // Check for right alignment
+      if (dropColumn <= numColumns - numPiecesToWin) {
+        int i = 1;
+        while (i < numPiecesToWin && field [dropColumn + i, dropRow] == colour) {
+          i++;
+        }
+        if (i == numPiecesToWin) {
+          return true;
+        }
+      }
+
+      // Check for bottom alignment
+      if (dropRow + 1 >= numPiecesToWin) {
+        int i = 1;
+        while (i < numPiecesToWin && field [dropColumn, dropRow - i] == colour) {
+          i++;
+        }
+        if (i == numPiecesToWin) {
+          return true;
+        }
+      }
+
+      // Check for bottom left alignment
+      if (dropColumn <= numColumns - numPiecesToWin && dropRow + 1 >= numPiecesToWin) {
+        int i = 1;
+        while (i < numPiecesToWin && field [dropColumn + i, dropRow - i] == colour) {
+          i++;
+        }
+        if (i == numPiecesToWin) {
+          return true;
+        }
+      }
+
+      // Check for bottom right alignment
+      if (dropColumn + 1 >= numPiecesToWin && dropRow + 1 >= numPiecesToWin) {
+        int i = 1;
+        while (i < numPiecesToWin && field [dropColumn - i, dropRow - i] == colour) {
+          i++;
+        }
+        if (i == numPiecesToWin) {
+          return true;
         }
       }
       return false;
     }
 
+    // Vérifie si la grille contient encore des cellules vides
+    public bool ContainsEmptyCell ()
+    {
+/*      for (int x = 0; x < numColumns; x++) {
+        for (int y = 0; y < numRows; y++) {
+          if (field [x, y] == (int)Piece.Empty)
+            return true;
+        }
+      }
+      return false;*/
+//      Debug.Log (piecesNumber + " - " + (numRows - 1) * (numColumns - 1));
+      return (piecesNumber < numRows * numColumns);
+    }
+
     // Execute une copie profonde de l'état du jeu
     public Field Clone ()
     {
-      return new Field (numRows, numColumns, numPiecesToWin, allowDiagonally, isPlayersTurn, field);
+      return new Field (numRows, numColumns, numPiecesToWin, allowDiagonally, isPlayersTurn, piecesNumber, field);
     }
 
     public String ToString() {
