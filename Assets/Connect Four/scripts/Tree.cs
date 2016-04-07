@@ -239,7 +239,7 @@ namespace ConnectFour
       int choosedColumn = -1;
       // Inutile de lancer MCST le premier tour
       if (field.PiecesNumber != 0) {
-        int nbIteration = 10000;
+        int nbIteration = 1000;
         for (int i = 0; i < nbIteration; i++) {
           // copie profonde
           simulatedStateField = currentStateField.Clone ();

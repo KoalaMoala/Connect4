@@ -58,7 +58,7 @@ namespace ConnectFour
       this.numPiecesToWin = numPiecesToWin;
       this.allowDiagonally = allowDiagonally;
 
-      isPlayersTurn = System.Convert.ToBoolean (UnityEngine.Random.Range (0, 1));
+      isPlayersTurn = System.Convert.ToBoolean (UnityEngine.Random.Range (0, 2));
 
       field = new int[numColumns, numRows];
       for (int x = 0; x < numColumns; x++) {
