@@ -40,11 +40,11 @@ namespace ConnectFour
       get { return isPlayersTurn; }
     }
 
-		private int piecesNumber = 0;
+    private int piecesNumber = 0;
 
-		public int PiecesNumber {
-			get { return piecesNumber; }
-		}
+    public int PiecesNumber {
+      get { return piecesNumber; }
+    }
 
     // memorize last move
     private int dropColumn;
@@ -71,7 +71,7 @@ namespace ConnectFour
       dropRow = 0;
     }
 
-    public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally, bool isPlayersTurn, int piecesNumber ,int[,] field)
+    public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally, bool isPlayersTurn, int piecesNumber, int[,] field)
     {
       this.numRows = numRows;
       this.numColumns = numColumns;
@@ -144,7 +144,7 @@ namespace ConnectFour
 //        foundFreeCell = true;
           field [col, i] = isPlayersTurn ? (int)Piece.Blue : (int)Piece.Red;
 //        endPosition = new Vector3(x, i * -1, startPosition.z);
-					piecesNumber += 1;
+          piecesNumber += 1;
           dropColumn = col;
           dropRow = i;
           return i;
@@ -227,80 +227,95 @@ namespace ConnectFour
     }
 
     // Vérifie si la partie a été gagné en spécifiance quel est le dernier pion joué
-    public bool CheckForVictory() {
+    public bool CheckForVictory ()
+    {
       int colour = field [dropColumn, dropRow];
       if (colour == 0) {
         return false;
       }
 
-      // Check for left alignment
-      if (dropColumn + 1 >= numPiecesToWin) {
-        int i = 1;
-        while (i < numPiecesToWin && field [dropColumn - i, dropRow] == colour) {
-          i++;
+      bool rightDirection = true;
+      bool leftDirection = true;
+      int currentAlignment = 1; //count current Piece
+
+      //check horizontal alignment
+      for(int i = 1; i <= numPiecesToWin; i++) {
+        if (rightDirection && dropRow + i < numRows) {
+          if (field [dropColumn, dropRow + i] == colour)
+            currentAlignment++;
+          else
+            rightDirection = false;
         }
-        if (i == numPiecesToWin) {
+
+        if (leftDirection && dropRow - i >= 0) {
+          if (field [dropColumn, dropRow - i] == colour)
+            currentAlignment++;
+          else
+            leftDirection = false;
+        }
+
+        if (currentAlignment >= numPiecesToWin)
           return true;
+      }
+
+      //reset var
+      bool bottomDirection = true;
+      bool upDirection = true;
+      currentAlignment = 1;
+
+      //check vertical alignment
+      for(int i = 1; i <= numPiecesToWin; i++) {
+        if (upDirection && dropColumn + i < numColumns) {
+          if (field [dropColumn + i , dropRow] == colour)
+            currentAlignment++;
+          else
+            upDirection = false;
+        }
+
+        if (bottomDirection && dropColumn - i >= 0) {
+          if (field [dropColumn - i, dropRow] == colour)
+            currentAlignment++;
+          else
+            bottomDirection = false;
+        }
+
+        if (currentAlignment >= numPiecesToWin)
+          return true;
+      }
+
+      //check diagonal alignment
+      if (allowDiagonally) {
+        //reset var
+        bool bottomUpDirection = true;
+        bool upBottomDirection = true;
+        currentAlignment = 1;
+
+        for(int i = 1; i <= numPiecesToWin; i++) {
+          if (bottomUpDirection && dropColumn + i < numColumns && dropRow + i < numRows) {
+            if (field [dropColumn + i, dropRow + i] == colour)
+              currentAlignment++;
+            else
+              bottomUpDirection = false;
+          }
+
+          if (upBottomDirection && dropColumn - i >= 0 && dropRow - i >= 0 ) {
+            if (field [dropColumn - i, dropRow - i] == colour)
+              currentAlignment++;
+            else
+              upBottomDirection = false;
+          }
+
+          if (currentAlignment >= numPiecesToWin)
+            return true;
         }
       }
 
-      // Check for right alignment
-      if (dropColumn <= numColumns - numPiecesToWin) {
-        int i = 1;
-        while (i < numPiecesToWin && field [dropColumn + i, dropRow] == colour) {
-          i++;
-        }
-        if (i == numPiecesToWin) {
-          return true;
-        }
-      }
-
-      // Check for bottom alignment
-      if (dropRow + 1 >= numPiecesToWin) {
-        int i = 1;
-        while (i < numPiecesToWin && field [dropColumn, dropRow - i] == colour) {
-          i++;
-        }
-        if (i == numPiecesToWin) {
-          return true;
-        }
-      }
-
-      // Check for bottom left alignment
-      if (dropColumn <= numColumns - numPiecesToWin && dropRow + 1 >= numPiecesToWin) {
-        int i = 1;
-        while (i < numPiecesToWin && field [dropColumn + i, dropRow - i] == colour) {
-          i++;
-        }
-        if (i == numPiecesToWin) {
-          return true;
-        }
-      }
-
-      // Check for bottom right alignment
-      if (dropColumn + 1 >= numPiecesToWin && dropRow + 1 >= numPiecesToWin) {
-        int i = 1;
-        while (i < numPiecesToWin && field [dropColumn - i, dropRow - i] == colour) {
-          i++;
-        }
-        if (i == numPiecesToWin) {
-          return true;
-        }
-      }
       return false;
     }
 
     // Vérifie si la grille contient encore des cellules vides
     public bool ContainsEmptyCell ()
     {
-/*      for (int x = 0; x < numColumns; x++) {
-        for (int y = 0; y < numRows; y++) {
-          if (field [x, y] == (int)Piece.Empty)
-            return true;
-        }
-      }
-      return false;*/
-//      Debug.Log (piecesNumber + " - " + (numRows - 1) * (numColumns - 1));
       return (piecesNumber < numRows * numColumns);
     }
 
@@ -310,7 +325,8 @@ namespace ConnectFour
       return new Field (numRows, numColumns, numPiecesToWin, allowDiagonally, isPlayersTurn, piecesNumber, field);
     }
 
-    public String ToString() {
+    public String ToString ()
+    {
       String str = "Player";
       str += isPlayersTurn ? "1\n" : "2\n";
       for (int y = 0; y < numRows; y++) {
