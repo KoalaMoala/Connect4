@@ -47,10 +47,8 @@ namespace ConnectFour
     /// 1 = Blue
     /// 2 = Red
     /// </summary>
-    //int[,] field;
     Field field;
 
-    //		bool IsPlayersTurn = true;
     bool isLoading = true;
     bool isDropping = false;
     bool mouseButtonPressed = false;
@@ -90,12 +88,10 @@ namespace ConnectFour
       gameObjectField = new GameObject ("Field");
 
       // create an empty field and instantiate the cells
-      //field = new int[numColumns, numRows];
       field = new Field (numRows, numColumns, numPiecesToWin, allowDiagonally);
 
       for (int x = 0; x < numColumns; x++) {
         for (int y = 0; y < numRows; y++) {
-          //field[x, y] = (int)Piece.Empty;
           GameObject g = Instantiate (pieceField, new Vector3 (x, y * -1, -1), Quaternion.identity) as GameObject;
           g.transform.parent = gameObjectField.transform;
         }
@@ -124,19 +120,7 @@ namespace ConnectFour
       Vector3 spawnPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 
       if (!field.IsPlayersTurn) {
-        /*			Dictionary<int, int> moves = field.GetPossibleMoves();
-
-				//default AI
-				if(moves.Count > 0)
-				{
-					bool defaultAI = true;
-					int column;
-
-					if(defaultAI)
-					column = Enumerable.ToList(moves.Keys)[Random.Range (0, moves.Count)];
-					else*/
 				MonteCarloSearchTree mcst = new MonteCarloSearchTree ();
-        // int column = field.GetRandomMove ();
 				int column = mcst.FindBestMove(field);
 					
         spawnPos = new Vector3 (column, 0, 0);
@@ -163,8 +147,7 @@ namespace ConnectFour
         //check if the left mouse has been pressed down this frame
         if (Input.GetMouseButtonDown (0) || Input.touchCount > 0 && btnPlayAgainTouching == false) {
           btnPlayAgainTouching = true;
-					
-          //CreateField();
+
           Application.LoadLevel (0);
         }
       } else {
@@ -224,41 +207,6 @@ namespace ConnectFour
     }
 
     /// <summary>
-    /// Gets all the possible moves.
-    /// </summary>
-    /// <returns>The possible moves.</returns>
-    /*		public Dictionary<int, int> GetPossibleMoves()
-		{
-			Dictionary<int, int> possibleMoves = new Dictionary<int, int>();
-			for (int x = 0; x < numColumns; x++)
-			{
-				for(int y = numRows - 1; y >= 0; y--)
-				{
-					if(field[x, y] == (int)Piece.Empty)
-					{
-						possibleMoves.Add(x, y);
-						break;
-					}
-				}
-			}
-			return possibleMoves;
-		}
-  */  
-
-    /// <summary>
-    /// Gets the best move with a MCTS.
-    /// </summary>
-    /// <returns>The best move (x value).</returns>
-    /*		public int GetBestMove()
-		{
-			//building our tree and expanding it randomly
-
-			//applying min/max on our tree
-
-			return 0;
-		}*/
-
-    /// <summary>
     /// This method searches for a empty cell and lets 
     /// the object fall down into this cell
     /// </summary>
@@ -274,19 +222,6 @@ namespace ConnectFour
       int x = Mathf.RoundToInt (startPosition.x);
       startPosition = new Vector3 (x, startPosition.y, startPosition.z);
 
-      // is there a free cell in the selected column?
-/*			bool foundFreeCell = false;
-			for(int i = numRows-1; i >= 0; i--)
-			{
-				if(field[x, i] == 0)
-				{
-					foundFreeCell = true;
-					field[x, i] = IsPlayersTurn ? (int)Piece.Blue : (int)Piece.Red;
-					endPosition = new Vector3(x, i * -1, startPosition.z);
-
-					break;
-				}
-			}*/
       int y = field.DropInColumn (x);
 
       if (y != -1) {
@@ -318,7 +253,6 @@ namespace ConnectFour
         while (isCheckingForWinner)
           yield return null;
 
-        //IsPlayersTurn = !IsPlayersTurn;
         field.SwitchPlayer ();
       }
 
@@ -334,83 +268,6 @@ namespace ConnectFour
     {
       isCheckingForWinner = true;
 
-/*			for(int x = 0; x < numColumns; x++)
-			{
-				for(int y = 0; y < numRows; y++)
-				{
-					// Get the Laymask to Raycast against, if its Players turn only include
-					// Layermask Blue otherwise Layermask Red
-					int layermask = IsPlayersTurn ? (1 << 8) : (1 << 9);
-
-					// If its Players turn ignore red as Starting piece and wise versa
-					if(field[x, y] != (IsPlayersTurn ? (int)Piece.Blue : (int)Piece.Red))
-					{
-						continue;
-					}
-
-					// shoot a ray of length 'numPiecesToWin - 1' to the right to test horizontally
-					RaycastHit[] hitsHorz = Physics.RaycastAll(
-						new Vector3(x, y * -1, 0), 
-						Vector3.right, 
-						numPiecesToWin - 1, 
-						layermask);
-
-					// return true (won) if enough hits
-					if(hitsHorz.Length == numPiecesToWin - 1)
-					{
-						gameOver = true;
-						break;
-					}
-
-					// shoot a ray up to test vertically
-					RaycastHit[] hitsVert = Physics.RaycastAll(
-						new Vector3(x, y * -1, 0), 
-						Vector3.up, 
-						numPiecesToWin - 1, 
-						layermask);
-					
-					if(hitsVert.Length == numPiecesToWin - 1)
-					{
-						gameOver = true;
-						break;
-					}
-
-					// test diagonally
-					if(allowDiagonally)
-					{
-						// calculate the length of the ray to shoot diagonally
-						float length = Vector2.Distance(new Vector2(0, 0), new Vector2(numPiecesToWin - 1, numPiecesToWin - 1));
-
-						RaycastHit[] hitsDiaLeft = Physics.RaycastAll(
-							new Vector3(x, y * -1, 0), 
-							new Vector3(-1 , 1), 
-							length, 
-							layermask);
-						
-						if(hitsDiaLeft.Length == numPiecesToWin - 1)
-						{
-							gameOver = true;
-							break;
-						}
-
-						RaycastHit[] hitsDiaRight = Physics.RaycastAll(
-							new Vector3(x, y * -1, 0), 
-							new Vector3(1 , 1), 
-							length, 
-							layermask);
-						
-						if(hitsDiaRight.Length == numPiecesToWin - 1)
-						{
-							gameOver = true;
-							break;
-						}
-					}
-
-					yield return null;
-				}
-
-				yield return null;
-			}*/
       gameOver = field.CheckForWinner ();
 
       // if Game Over update the winning text to show who has won
@@ -428,22 +285,5 @@ namespace ConnectFour
 
       yield return 0;
     }
-
-    /// <summary>
-    /// check if the field contains an empty cell
-    /// </summary>
-    /// <returns><c>true</c>, if it contains empty cell, <c>false</c> otherwise.</returns>
-    /*		bool FieldContainsEmptyCell()
-		{
-			for(int x = 0; x < numColumns; x++)
-			{
-				for(int y = 0; y < numRows; y++)
-				{
-					if(field[x, y] == (int)Piece.Empty)
-						return true;
-				}
-			}
-			return false;
-		}*/
   }
 }

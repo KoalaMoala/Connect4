@@ -117,13 +117,6 @@ namespace ConnectFour
       }
       return possibleDrops;
     }
-
-
-    // TODO : renvoie le meilleur mouvement
-    public int GetBestMove ()
-    {
-      return 0;
-    }
      
     // renvoie un mouvement aléatoire parmi tous ceux possibles
     public int GetRandomMove ()
@@ -141,9 +134,7 @@ namespace ConnectFour
     {
       for (int i = numRows - 1; i >= 0; i--) {
         if (field [col, i] == 0) {
-//        foundFreeCell = true;
           field [col, i] = isPlayersTurn ? (int)Piece.Blue : (int)Piece.Red;
-//        endPosition = new Vector3(x, i * -1, startPosition.z);
           piecesNumber += 1;
           dropColumn = col;
           dropRow = i;

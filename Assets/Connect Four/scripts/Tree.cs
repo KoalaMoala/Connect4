@@ -34,21 +34,13 @@ namespace ConnectFour
     // le noeud parent
     Node parent { get; set; }
     // on associe état enfant à l'action qui mène à cette état
-    // Dictionary<int, Node> children;
     Dictionary<Node, int> children;
     // référence vers le jeu utilisé pour la simulation
-    // public Field field;
 
-    /*public Node (Field field, Node parentNode = null)
-    {
-      wins = 0;
-      plays = 0;
-      this.isPlayersTurn = field.IsPlayersTurn;
-      // this.field = field;
-      children = new Dictionary<int, Node> ();
-      parent = parentNode;
-    }*/
-
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ConnectFour.Node"/> class.
+		/// </summary>
+		/// <param name="parentNode">Parent node.</param>
     public Node (Node parentNode = null)
     {
       wins = 0;
@@ -108,8 +100,6 @@ namespace ConnectFour
       
       Node bestNode = null;
       bestNode = selectBestChild (nbSimulation);
-      // TODO : Evaluer l'ensemble des enfants et appeler récursivement Select dessus
-      // (ne pas oublier d'appeler field.dropInColumn(meilleurMouvement) pour mettre à jour le field
       MonteCarloSearchTree.simulatedStateField.DropInColumn (children [bestNode]);
       MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
       return bestNode.Select (nbSimulation);
@@ -197,6 +187,10 @@ namespace ConnectFour
       return bestNode;
     }
 
+		/// <summary>
+		/// Select the mosts the selected move.
+		/// </summary>
+		/// <returns>The selected move column number.</returns>
     public int MostSelectedMove ()
     {
       double maxValue = -1;
@@ -227,7 +221,11 @@ namespace ConnectFour
     // racine de l'arbre
     Node rootNode;
 
-    // retourne le coup le plus avantageux
+		/// <summary>
+		/// Finds the best move.
+		/// </summary>
+		/// <returns>The best move column number.</returns>
+		/// <param name="field">The field used to find the move</param>
     public int FindBestMove (Field field)
     {
       currentStateField = field;
@@ -248,7 +246,6 @@ namespace ConnectFour
           expandedNode = selectedNode.Expand ();
           expandedNode.BackPropagate (expandedNode.Simulate ());
         }
-        //choosedColumn = rootNode.getChildAction (rootNode.selectBestChild (rootNode.Plays));
         choosedColumn = rootNode.MostSelectedMove ();
       } else
         choosedColumn = field.GetRandomMove ();
