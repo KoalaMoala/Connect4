@@ -76,14 +76,14 @@ namespace ConnectFour
       }
         
       //select best node with UBC1
-      float maxValue = -1;
+      double maxValue = -1;
       Node bestNode = null;
 
       foreach (Node child in children.Values) {
         if (child.plays == 0)
           return child;
 
-        float evaluation = child.wins / child.plays + Math.Sqrt (2 * Math.Log (nbSimulation) / child.plays);
+        double evaluation = child.wins / child.plays + Math.Sqrt (2 * Math.Log (nbSimulation) / child.plays);
 
         if (maxValue < evaluation) {
           maxValue = evaluation;
