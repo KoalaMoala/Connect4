@@ -237,10 +237,10 @@ namespace ConnectFour
       bool bottomDirection = true;
       int currentAlignment = 1; //count current Piece
 
-      //check horizontal alignment
+      //check vertical alignment
       for(int i = 1; i <= numPiecesToWin; i++) {
-        if (bottomDirection && dropRow - i >= 0) {
-          if (field [dropColumn, dropRow - i] == colour)
+        if (bottomDirection && dropRow + i < NumRows) {
+          if (field [dropColumn, dropRow + i] == colour)
             currentAlignment++;
           else
             bottomDirection = false;
@@ -255,7 +255,7 @@ namespace ConnectFour
       bool leftDirection = true;
       currentAlignment = 1;
 
-      //check vertical alignment
+      //check horizontal alignment
       for(int i = 1; i <= numPiecesToWin; i++) {
         if (rightDirection && dropColumn + i < numColumns) {
           if (field [dropColumn + i, dropRow] == colour)

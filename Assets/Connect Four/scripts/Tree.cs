@@ -161,7 +161,6 @@ namespace ConnectFour
         }
         MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
       }
-//      Debug.Log (MonteCarloSearchTree.simulatedStateField.ToString ());
 			return true;
     }
 
@@ -202,10 +201,7 @@ namespace ConnectFour
     {
       double maxValue = -1;
       int bestMove = -1;
-      Debug.Log ("Child selection :");
       foreach (var child in children) {
-        Debug.Log (child.Value + " - " + child.Key.Wins + " - " + child.Key.Plays);
-
         if ((double)child.Key.Wins/(double)child.Key.Plays > maxValue) {
           bestMove = child.Value;
           maxValue = (double)child.Key.Wins/(double)child.Key.Plays;
@@ -243,7 +239,7 @@ namespace ConnectFour
       int choosedColumn = -1;
       // Inutile de lancer MCST le premier tour
       if (field.PiecesNumber != 0) {
-        int nbIteration = 1000;
+        int nbIteration = 10000;
         for (int i = 0; i < nbIteration; i++) {
           // copie profonde
           simulatedStateField = currentStateField.Clone ();
