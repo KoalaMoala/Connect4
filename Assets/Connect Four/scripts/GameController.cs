@@ -5,130 +5,126 @@ using System.Linq;
 
 namespace ConnectFour
 {
-	public class GameController : MonoBehaviour 
-	{
+  public class GameController : MonoBehaviour
+  {
 
-		[Range(3, 8)]
-		public int numRows = 4;
-		[Range(3, 8)]
-		public int numColumns = 4;
+    [Range (3, 8)]
+    public int numRows = 4;
+    [Range (3, 8)]
+    public int numColumns = 4;
 
-		[Tooltip("How many pieces have to be connected to win.")]
-		public int numPiecesToWin = 4;
+    [Tooltip ("How many pieces have to be connected to win.")]
+    public int numPiecesToWin = 4;
 
-		[Tooltip("Allow diagonally connected Pieces?")]
-		public bool allowDiagonally = true;
+    [Tooltip ("Allow diagonally connected Pieces?")]
+    public bool allowDiagonally = true;
 		
-		public float dropTime = 4f;
+    public float dropTime = 4f;
 
-		// Gameobjects 
-		public GameObject pieceRed;
-		public GameObject pieceBlue;
-		public GameObject pieceField;
+    // Gameobjects
+    public GameObject pieceRed;
+    public GameObject pieceBlue;
+    public GameObject pieceField;
 
-		public GameObject winningText;
-		public string playerWonText = "You Won!";
-		public string playerLoseText = "You Lose!";
-		public string drawText = "Draw!";
+    public GameObject winningText;
+    public string playerWonText = "You Won!";
+    public string playerLoseText = "You Lose!";
+    public string drawText = "Draw!";
 
-		public GameObject btnPlayAgain;
-		bool btnPlayAgainTouching = false;
-		Color btnPlayAgainOrigColor;
-		Color btnPlayAgainHoverColor = new Color(255, 143,4);
+    public GameObject btnPlayAgain;
+    bool btnPlayAgainTouching = false;
+    Color btnPlayAgainOrigColor;
+    Color btnPlayAgainHoverColor = new Color (255, 143, 4);
 
-		GameObject gameObjectField;
+    GameObject gameObjectField;
 
-		// temporary gameobject, holds the piece at mouse position until the mouse has clicked
-		GameObject gameObjectTurn;
+    // temporary gameobject, holds the piece at mouse position until the mouse has clicked
+    GameObject gameObjectTurn;
 
-		/// <summary>
-		/// The Game field.
-		/// 0 = Empty
-		/// 1 = Blue
-		/// 2 = Red
-		/// </summary>
-		//int[,] field;
+    /// <summary>
+    /// The Game field.
+    /// 0 = Empty
+    /// 1 = Blue
+    /// 2 = Red
+    /// </summary>
+    //int[,] field;
     Field field;
 
-//		bool IsPlayersTurn = true;
-		bool isLoading = true;
-		bool isDropping = false; 
-		bool mouseButtonPressed = false;
+    //		bool IsPlayersTurn = true;
+    bool isLoading = true;
+    bool isDropping = false;
+    bool mouseButtonPressed = false;
 
-		bool gameOver = false;
-		bool isCheckingForWinner = false;
+    bool gameOver = false;
+    bool isCheckingForWinner = false;
 
-		// Use this for initialization
-		void Start () 
-		{
-			int max = Mathf.Max (numRows, numColumns);
+    // Use this for initialization
+    void Start ()
+    {
+      int max = Mathf.Max (numRows, numColumns);
 
-			if(numPiecesToWin > max)
-				numPiecesToWin = max;
+      if (numPiecesToWin > max)
+        numPiecesToWin = max;
 
-			CreateField ();
+      CreateField ();
 
-			//IsPlayersTurn = System.Convert.ToBoolean(Random.Range (0, 1));
+      //IsPlayersTurn = System.Convert.ToBoolean(Random.Range (0, 1));
 
-			btnPlayAgainOrigColor = btnPlayAgain.GetComponent<Renderer>().material.color;
-		}
+      btnPlayAgainOrigColor = btnPlayAgain.GetComponent<Renderer> ().material.color;
+    }
 
-		/// <summary>
-		/// Creates the field.
-		/// </summary>
-		void CreateField()
-		{
-			winningText.SetActive(false);
-			btnPlayAgain.SetActive(false);
+    /// <summary>
+    /// Creates the field.
+    /// </summary>
+    void CreateField ()
+    {
+      winningText.SetActive (false);
+      btnPlayAgain.SetActive (false);
 
-			isLoading = true;
+      isLoading = true;
 
-			gameObjectField = GameObject.Find ("Field");
-			if(gameObjectField != null)
-			{
-				DestroyImmediate(gameObjectField);
-			}
-			gameObjectField = new GameObject("Field");
+      gameObjectField = GameObject.Find ("Field");
+      if (gameObjectField != null) {
+        DestroyImmediate (gameObjectField);
+      }
+      gameObjectField = new GameObject ("Field");
 
-			// create an empty field and instantiate the cells
-			//field = new int[numColumns, numRows];
-      field = new Field(numRows, numColumns, numPiecesToWin, allowDiagonally);
+      // create an empty field and instantiate the cells
+      //field = new int[numColumns, numRows];
+      field = new Field (numRows, numColumns, numPiecesToWin, allowDiagonally);
 
-			for(int x = 0; x < numColumns; x++)
-			{
-				for(int y = 0; y < numRows; y++)
-				{
-					//field[x, y] = (int)Piece.Empty;
-					GameObject g = Instantiate(pieceField, new Vector3(x, y * -1, -1), Quaternion.identity) as GameObject;
-					g.transform.parent = gameObjectField.transform;
-				}
-			}
+      for (int x = 0; x < numColumns; x++) {
+        for (int y = 0; y < numRows; y++) {
+          //field[x, y] = (int)Piece.Empty;
+          GameObject g = Instantiate (pieceField, new Vector3 (x, y * -1, -1), Quaternion.identity) as GameObject;
+          g.transform.parent = gameObjectField.transform;
+        }
+      }
 
-			isLoading = false;
-			gameOver = false;
+      isLoading = false;
+      gameOver = false;
 
-			// center camera
-			Camera.main.transform.position = new Vector3(
-				(numColumns-1) / 2.0f, -((numRows-1) / 2.0f), Camera.main.transform.position.z);
+      // center camera
+      Camera.main.transform.position = new Vector3 (
+        (numColumns - 1) / 2.0f, -((numRows - 1) / 2.0f), Camera.main.transform.position.z);
 
-			winningText.transform.position = new Vector3(
-				(numColumns-1) / 2.0f, -((numRows-1) / 2.0f) + 1, winningText.transform.position.z);
+      winningText.transform.position = new Vector3 (
+        (numColumns - 1) / 2.0f, -((numRows - 1) / 2.0f) + 1, winningText.transform.position.z);
 
-			btnPlayAgain.transform.position = new Vector3(
-				(numColumns-1) / 2.0f, -((numRows-1) / 2.0f) - 1, btnPlayAgain.transform.position.z);
-		}
+      btnPlayAgain.transform.position = new Vector3 (
+        (numColumns - 1) / 2.0f, -((numRows - 1) / 2.0f) - 1, btnPlayAgain.transform.position.z);
+    }
 
-		/// <summary>
-		/// Spawns a piece at mouse position above the first row
-		/// </summary>
-		/// <returns>The piece.</returns>
-		GameObject SpawnPiece()
-		{
-			Vector3 spawnPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+    /// <summary>
+    /// Spawns a piece at mouse position above the first row
+    /// </summary>
+    /// <returns>The piece.</returns>
+    GameObject SpawnPiece ()
+    {
+      Vector3 spawnPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 					
-			if(!field.IsPlayersTurn)
-			{
-	/*			Dictionary<int, int> moves = field.GetPossibleMoves();
+      if (!field.IsPlayersTurn) {
+        /*			Dictionary<int, int> moves = field.GetPossibleMoves();
 
 				//default AI
 				if(moves.Count > 0)
@@ -139,115 +135,97 @@ namespace ConnectFour
 					if(defaultAI)
 					column = Enumerable.ToList(moves.Keys)[Random.Range (0, moves.Count)];
 					else*/
-					int column = field.GetRandomMove();
+        int column = field.GetRandomMove ();
 					
-					spawnPos = new Vector3(column, 0, 0);
-			}
+        spawnPos = new Vector3 (column, 0, 0);
+      }
 
-			GameObject g = Instantiate(
-					field.IsPlayersTurn ? pieceBlue : pieceRed, // is players turn = spawn blue, else spawn red
-					new Vector3(
-					Mathf.Clamp(spawnPos.x, 0, numColumns-1), 
-					gameObjectField.transform.position.y + 1, 0), // spawn it above the first row
-					Quaternion.identity) as GameObject;
+      GameObject g = Instantiate (
+                    field.IsPlayersTurn ? pieceBlue : pieceRed, // is players turn = spawn blue, else spawn red
+                    new Vector3 (
+                      Mathf.Clamp (spawnPos.x, 0, numColumns - 1), 
+                      gameObjectField.transform.position.y + 1, 0), // spawn it above the first row
+                    Quaternion.identity) as GameObject;
 
-			return g;
-		}
+      return g;
+    }
 
-		void UpdatePlayAgainButton()
-		{
-			RaycastHit hit;
-			//ray shooting out of the camera from where the mouse is
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+    void UpdatePlayAgainButton ()
+    {
+      RaycastHit hit;
+      //ray shooting out of the camera from where the mouse is
+      Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 			
-			if (Physics.Raycast(ray, out hit) && hit.collider.name == btnPlayAgain.name)
-			{
-				btnPlayAgain.GetComponent<Renderer>().material.color = btnPlayAgainHoverColor;
-				//check if the left mouse has been pressed down this frame
-				if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && btnPlayAgainTouching == false)
-				{
-					btnPlayAgainTouching = true;
+      if (Physics.Raycast (ray, out hit) && hit.collider.name == btnPlayAgain.name) {
+        btnPlayAgain.GetComponent<Renderer> ().material.color = btnPlayAgainHoverColor;
+        //check if the left mouse has been pressed down this frame
+        if (Input.GetMouseButtonDown (0) || Input.touchCount > 0 && btnPlayAgainTouching == false) {
+          btnPlayAgainTouching = true;
 					
-					//CreateField();
-					Application.LoadLevel(0);
-				}
-			}
-			else
-			{
-				btnPlayAgain.GetComponent<Renderer>().material.color = btnPlayAgainOrigColor;
-			}
+          //CreateField();
+          Application.LoadLevel (0);
+        }
+      } else {
+        btnPlayAgain.GetComponent<Renderer> ().material.color = btnPlayAgainOrigColor;
+      }
 			
-			if(Input.touchCount == 0)
-			{
-				btnPlayAgainTouching = false;
-			}
-		}
+      if (Input.touchCount == 0) {
+        btnPlayAgainTouching = false;
+      }
+    }
 
-		// Update is called once per frame
-		void Update () 
-		{
-			if(isLoading)
-				return;
+    // Update is called once per frame
+    void Update ()
+    {
+      if (isLoading)
+        return;
 
-			if(isCheckingForWinner)
-				return;
+      if (isCheckingForWinner)
+        return;
 
-			if(gameOver)
-			{
-				winningText.SetActive(true);
-				btnPlayAgain.SetActive(true);
+      if (gameOver) {
+        winningText.SetActive (true);
+        btnPlayAgain.SetActive (true);
 
-				UpdatePlayAgainButton();
+        UpdatePlayAgainButton ();
 
-				return;
-			}
+        return;
+      }
 
-			if(field.IsPlayersTurn)
-			{
-				if(gameObjectTurn == null)
-				{
-					gameObjectTurn = SpawnPiece();
-				}
-				else
-				{
-					// update the objects position
-					Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-					gameObjectTurn.transform.position = new Vector3(
-						Mathf.Clamp(pos.x, 0, numColumns-1), 
-						gameObjectField.transform.position.y + 1, 0);
+      if (field.IsPlayersTurn) {
+        if (gameObjectTurn == null) {
+          gameObjectTurn = SpawnPiece ();
+        } else {
+          // update the objects position
+          Vector3 pos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+          gameObjectTurn.transform.position = new Vector3 (
+            Mathf.Clamp (pos.x, 0, numColumns - 1), 
+            gameObjectField.transform.position.y + 1, 0);
 
-					// click the left mouse button to drop the piece into the selected column
-					if(Input.GetMouseButtonDown(0) && !mouseButtonPressed && !isDropping)
-					{
-						mouseButtonPressed= true;
+          // click the left mouse button to drop the piece into the selected column
+          if (Input.GetMouseButtonDown (0) && !mouseButtonPressed && !isDropping) {
+            mouseButtonPressed = true;
 
-						StartCoroutine(dropPiece(gameObjectTurn));
-					}
-					else
-					{
-						mouseButtonPressed = false;
-					}
-				}
-			}
-			else
-			{
-				if(gameObjectTurn == null)
-				{
-					gameObjectTurn = SpawnPiece();
-				}
-				else
-				{
-					if(!isDropping)
-						StartCoroutine(dropPiece(gameObjectTurn));
-				}
-			}
-		}
+            StartCoroutine (dropPiece (gameObjectTurn));
+          } else {
+            mouseButtonPressed = false;
+          }
+        }
+      } else {
+        if (gameObjectTurn == null) {
+          gameObjectTurn = SpawnPiece ();
+        } else {
+          if (!isDropping)
+            StartCoroutine (dropPiece (gameObjectTurn));
+        }
+      }
+    }
 
-		/// <summary>
-		/// Gets all the possible moves.
-		/// </summary>
-		/// <returns>The possible moves.</returns>
-/*		public Dictionary<int, int> GetPossibleMoves()
+    /// <summary>
+    /// Gets all the possible moves.
+    /// </summary>
+    /// <returns>The possible moves.</returns>
+    /*		public Dictionary<int, int> GetPossibleMoves()
 		{
 			Dictionary<int, int> possibleMoves = new Dictionary<int, int>();
 			for (int x = 0; x < numColumns; x++)
@@ -265,11 +243,11 @@ namespace ConnectFour
 		}
   */  
 
-		/// <summary>
-		/// Gets the best move with a MCTS.
-		/// </summary>
-		/// <returns>The best move (x value).</returns>
-/*		public int GetBestMove()
+    /// <summary>
+    /// Gets the best move with a MCTS.
+    /// </summary>
+    /// <returns>The best move (x value).</returns>
+    /*		public int GetBestMove()
 		{
 			//building our tree and expanding it randomly
 
@@ -278,23 +256,23 @@ namespace ConnectFour
 			return 0;
 		}*/
 
-		/// <summary>
-		/// This method searches for a empty cell and lets 
-		/// the object fall down into this cell
-		/// </summary>
-		/// <param name="gObject">Game Object.</param>
-		IEnumerator dropPiece(GameObject gObject)
-		{
-			isDropping = true;
+    /// <summary>
+    /// This method searches for a empty cell and lets 
+    /// the object fall down into this cell
+    /// </summary>
+    /// <param name="gObject">Game Object.</param>
+    IEnumerator dropPiece (GameObject gObject)
+    {
+      isDropping = true;
 
-			Vector3 startPosition = gObject.transform.position;
-			Vector3 endPosition = new Vector3();
+      Vector3 startPosition = gObject.transform.position;
+      Vector3 endPosition = new Vector3 ();
 
-			// round to a grid cell
-			int x = Mathf.RoundToInt(startPosition.x);
-			startPosition = new Vector3(x, startPosition.y, startPosition.z);
+      // round to a grid cell
+      int x = Mathf.RoundToInt (startPosition.x);
+      startPosition = new Vector3 (x, startPosition.y, startPosition.z);
 
-			// is there a free cell in the selected column?
+      // is there a free cell in the selected column?
 /*			bool foundFreeCell = false;
 			for(int i = numRows-1; i >= 0; i--)
 			{
@@ -307,53 +285,52 @@ namespace ConnectFour
 					break;
 				}
 			}*/
-      int y = field.DropInColumn(x);
+      int y = field.DropInColumn (x);
 
       if (y != -1) {
-        endPosition = new Vector3(x, y * -1, startPosition.z);
+        endPosition = new Vector3 (x, y * -1, startPosition.z);
 
-				// Instantiate a new Piece, disable the temporary
-				GameObject g = Instantiate (gObject) as GameObject;
-				gameObjectTurn.GetComponent<Renderer>().enabled = false;
+        // Instantiate a new Piece, disable the temporary
+        GameObject g = Instantiate (gObject) as GameObject;
+        gameObjectTurn.GetComponent<Renderer> ().enabled = false;
 
-				float distance = Vector3.Distance(startPosition, endPosition);
+        float distance = Vector3.Distance (startPosition, endPosition);
 
-				float t = 0;
-				while(t < 1)
-				{
-					t += Time.deltaTime * dropTime * ((numRows - distance) + 1);
+        float t = 0;
+        while (t < 1) {
+          t += Time.deltaTime * dropTime * ((numRows - distance) + 1);
 
-					g.transform.position = Vector3.Lerp (startPosition, endPosition, t);
-					yield return null;
-				}
+          g.transform.position = Vector3.Lerp (startPosition, endPosition, t);
+          yield return null;
+        }
 
-				g.transform.parent = gameObjectField.transform;
+        g.transform.parent = gameObjectField.transform;
 
-				// remove the temporary gameobject
-				DestroyImmediate(gameObjectTurn);
+        // remove the temporary gameobject
+        DestroyImmediate (gameObjectTurn);
 
-				// run coroutine to check if someone has won
-				StartCoroutine(Won());
+        // run coroutine to check if someone has won
+        StartCoroutine (Won ());
 
-				// wait until winning check is done
-				while(isCheckingForWinner)
-					yield return null;
+        // wait until winning check is done
+        while (isCheckingForWinner)
+          yield return null;
 
-				//IsPlayersTurn = !IsPlayersTurn;
-        field.SwitchPlayer();
-			}
+        //IsPlayersTurn = !IsPlayersTurn;
+        field.SwitchPlayer ();
+      }
 
-			isDropping = false;
+      isDropping = false;
 
-			yield return 0;
-		}
+      yield return 0;
+    }
 
-		/// <summary>
-		/// Check for Winner
-		/// </summary>
-		IEnumerator Won()
-		{
-			isCheckingForWinner = true;
+    /// <summary>
+    /// Check for Winner
+    /// </summary>
+    IEnumerator Won ()
+    {
+      isCheckingForWinner = true;
 
 /*			for(int x = 0; x < numColumns; x++)
 			{
@@ -434,31 +411,27 @@ namespace ConnectFour
 			}*/
       gameOver = field.CheckForWinner ();
 
-			// if Game Over update the winning text to show who has won
-			if(gameOver == true)
-			{
-				winningText.GetComponent<TextMesh>().text = field.IsPlayersTurn ? playerWonText : playerLoseText;
-			}
-			else 
-			{
-				// check if there are any empty cells left, if not set game over and update text to show a draw
-				if(!field.ContainsEmptyCell())
-				{
-					gameOver = true;
-					winningText.GetComponent<TextMesh>().text = drawText;
-				}
-			}
+      // if Game Over update the winning text to show who has won
+      if (gameOver == true) {
+        winningText.GetComponent<TextMesh> ().text = field.IsPlayersTurn ? playerWonText : playerLoseText;
+      } else {
+        // check if there are any empty cells left, if not set game over and update text to show a draw
+        if (!field.ContainsEmptyCell ()) {
+          gameOver = true;
+          winningText.GetComponent<TextMesh> ().text = drawText;
+        }
+      }
 
-			isCheckingForWinner = false;
+      isCheckingForWinner = false;
 
-			yield return 0;
-		}
+      yield return 0;
+    }
 
-		/// <summary>
-		/// check if the field contains an empty cell
-		/// </summary>
-		/// <returns><c>true</c>, if it contains empty cell, <c>false</c> otherwise.</returns>
-/*		bool FieldContainsEmptyCell()
+    /// <summary>
+    /// check if the field contains an empty cell
+    /// </summary>
+    /// <returns><c>true</c>, if it contains empty cell, <c>false</c> otherwise.</returns>
+    /*		bool FieldContainsEmptyCell()
 		{
 			for(int x = 0; x < numColumns; x++)
 			{
@@ -470,5 +443,5 @@ namespace ConnectFour
 			}
 			return false;
 		}*/
-	}
+  }
 }

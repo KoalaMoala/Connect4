@@ -4,53 +4,58 @@ using System.Collections.Generic;
 
 namespace ConnectFour
 {
-  public class NodeEvaluator {
-    static double explorationParameter = Math.Sqrt(2);
+  public class NodeEvaluator
+  {
+    static double explorationParameter = Math.Sqrt (2);
 
-    static double Evaluate(Node node) {
+    static double Evaluate (Node node)
+    {
       return 0;
     }
   }
 
-	public class Node
-	{
-		// le nombre de simulation gagnées depuis ce noeud
+  public class Node
+  {
+    // le nombre de simulation gagnées depuis ce noeud
     private int wins;
+
     public int Wins {
-      get {return wins;}
+      get { return wins; }
     }
-		// Le nombre de simulation jouées depuis ce noeud
+    // Le nombre de simulation jouées depuis ce noeud
     private int plays;
+
     public int Plays {
-      get {return plays;}
+      get { return plays; }
     }
-		// vrai si c'est le joueur qui a appelé MCTS qui doit joueur à ce noeud
-    bool isPlayersTurn {get; set;}
-		// le noeud parent
-    Node parent {get; set;}
-		// on associe état enfant à l'action qui mène à cette état
-		Dictionary<int, Node> children;
-		// référence vers le jeu utilisé pour la simulation
-    Field field {get; set;}
+    // vrai si c'est le joueur qui a appelé MCTS qui doit joueur à ce noeud
+    bool isPlayersTurn { get; set; }
+    // le noeud parent
+    Node parent { get; set; }
+    // on associe état enfant à l'action qui mène à cette état
+    Dictionary<int, Node> children;
+    // référence vers le jeu utilisé pour la simulation
+    Field field { get; set; }
 
-		public Node (Field field, Node parentNode = null)
-		{
-			wins = 0;
-			plays = 0;
+    public Node (Field field, Node parentNode = null)
+    {
+      wins = 0;
+      plays = 0;
       this.isPlayersTurn = field.IsPlayersTurn;
-			this.field = field;
-			children = new Dictionary<int, Node> ();
-			parent = parentNode;
-		}
+      this.field = field;
+      children = new Dictionary<int, Node> ();
+      parent = parentNode;
+    }
 
-		/// <summary>
-		/// Adds a child to the node.
-		/// </summary>
-		/// <param name="node">The node to add to the child pool</param>
-		/// <param name="line">The line number used to get to this child play</param>
-		public void addChild(Node node, int line) {
-			children.Add (line, node);
-		}
+    /// <summary>
+    /// Adds a child to the node.
+    /// </summary>
+    /// <param name="node">The node to add to the child pool</param>
+    /// <param name="line">The line number used to get to this child play</param>
+    public void addChild (Node node, int line)
+    {
+      children.Add (line, node);
+    }
 
     /// <summary>
     /// Select a node to expand in the current MCTS
@@ -58,35 +63,57 @@ namespace ConnectFour
     /// <returns>
     /// The selected node
     /// </returns>
-    public Node Select () {
-      if (!field.ContainsEmptyCell() || field.CheckForWinner()) {
+    public Node Select (int nbSimulation)
+    {
+      //check for end game
+      if (!field.ContainsEmptyCell () || field.CheckForWinner ()) {
         return null;
       }
+
+      //is this node fully expanded?
       if (children.Count < field.GetPossibleDrops ().Count) {
         return this;
-      } 
+      }
+        
+      //select best node with UBC1
+      float maxValue = -1;
+      Node bestNode = null;
+
+      foreach (Node child in children.Values) {
+        if (child.plays == 0)
+          return child;
+
+        float evaluation = child.wins / child.plays + Math.Sqrt (2 * Math.Log (nbSimulation) / child.plays);
+
+        if (maxValue < evaluation) {
+          maxValue = evaluation;
+          bestNode = child;
+        }
+      }
+
       // TODO : Evaluer l'ensemble des enfants et appeler récursivement Select dessus
       // (ne pas oublier d'appeler field.dropInColumn(meilleurMouvement) pour mettre à jour le field
-      return null;
+      return bestNode.Select (nbSimulation);
     }
 
     /// <summary>
     /// Instantiate a child below the selected node and attach it to the tree.
     /// </summary>
-		/// <returns>The new node created</returns>
-    public Node Expand() {
-			// Copy of the possible plays list
-			List<int> drops = new List<int>(field.GetPossibleDrops ());
-			// For each available plays, remove the ones that have already been play.
-			foreach (int column in children.Keys) {
-				if (drops.Contains (column))
-					drops.Remove (column);
-			}
-			// Gets a line to play on.
-			int lineToPlay = UnityEngine.Random.Range (0, drops.Count);
-			Node n = new Node (field, this);
-			// Adds the child to the tree
-			addChild (n, lineToPlay);
+    /// <returns>The new node created</returns>
+    public Node Expand ()
+    {
+      // Copy of the possible plays list
+      List<int> drops = new List<int> (field.GetPossibleDrops ());
+      // For each available plays, remove the ones that have already been play.
+      foreach (int column in children.Keys) {
+        if (drops.Contains (column))
+          drops.Remove (column);
+      }
+      // Gets a line to play on.
+      int lineToPlay = UnityEngine.Random.Range (0, drops.Count);
+      Node n = new Node (field, this);
+      // Adds the child to the tree
+      addChild (n, lineToPlay);
       return n;
     }
 
@@ -94,8 +121,9 @@ namespace ConnectFour
     /// Simulate a game play based on the specified baseNode.
     /// </summary>
     /// <returns>True if the simulation leads to a win for the main player</returns>
-    public bool Simulate() {
-      while (field.ContainsEmptyCell() && !field.CheckForWinner()) {
+    public bool Simulate ()
+    {
+      while (field.ContainsEmptyCell () && !field.CheckForWinner ()) {
         int nextMove = field.GetRandomMove ();
         field.DropInColumn (nextMove);
         field.SwitchPlayer ();
@@ -107,7 +135,8 @@ namespace ConnectFour
     /// Does the back propagation from this simulated game to the root.
     /// </summary>
     /// <param name="playersVictory">True if the value to propagate is a victory for the main player</param>
-    public void BackPropagate(bool playersVictory) {
+    public void BackPropagate (bool playersVictory)
+    {
       plays++;
       if (isPlayersTurn == playersVictory) {
         wins++;
@@ -116,46 +145,46 @@ namespace ConnectFour
         parent.BackPropagate (playersVictory);
       }
     }
-  } 
+  }
 
-	public class MonteCarloSearchTree
-	{
-		// correspond à l'état actuel du jeu
-		// /!\ c'est une référence vers l'état du jeu, NE PAS MODIFIER
-		Field currentStateField;
-		// état du jeu utilisé pour la simulation
-		Field simulatedStateField;
-		// Pour éviter de faire des copies profondes du jeu pour chaque noeud
-		// je pense que chaque noeud doit juste avoir une référence vers cet état
-		// lors de chaque itération de l'arbre, copier le contenu de currentStateField
-		// dans simulatedStateField (fonction Clone()), puis pour itérer sur l'arbre
-		// faire comme si on jouait avec ce Field (fonction DropInColumn(int)).
+  public class MonteCarloSearchTree
+  {
+    // correspond à l'état actuel du jeu
+    // /!\ c'est une référence vers l'état du jeu, NE PAS MODIFIER
+    Field currentStateField;
+    // état du jeu utilisé pour la simulation
+    Field simulatedStateField;
+    // Pour éviter de faire des copies profondes du jeu pour chaque noeud
+    // je pense que chaque noeud doit juste avoir une référence vers cet état
+    // lors de chaque itération de l'arbre, copier le contenu de currentStateField
+    // dans simulatedStateField (fonction Clone()), puis pour itérer sur l'arbre
+    // faire comme si on jouait avec ce Field (fonction DropInColumn(int)).
 
-		// racine de l'arbre
-		Node rootNode;
+    // racine de l'arbre
+    Node rootNode;
 
-		// retourne le coup le plus avantageux
-		public int FindBestMove (Field field)
-		{
-			currentStateField = field;
-			rootNode = new Node (simulatedStateField);
-			Node selectedNode;
-			Node expandedNode;
+    // retourne le coup le plus avantageux
+    public int FindBestMove (Field field)
+    {
+      currentStateField = field;
+      rootNode = new Node (simulatedStateField);
+      Node selectedNode;
+      Node expandedNode;
 
-			int nbIteration = 1000;
-			for (int i = 0; i < nbIteration; i++) {
-				// copie profonde
-				simulatedStateField = currentStateField.Clone ();
+      int nbIteration = 1000;
+      for (int i = 0; i < nbIteration; i++) {
+        // copie profonde
+        simulatedStateField = currentStateField.Clone ();
 
-				selectedNode = rootNode.Select();
-				expandedNode = selectedNode.Expand();
-				expandedNode.BackPropagate(expandedNode.Simulate());
-			}
-			return 0;
-		}
+        selectedNode = rootNode.Select (rootNode.Plays);
+        expandedNode = selectedNode.Expand ();
+        expandedNode.BackPropagate (expandedNode.Simulate ());
+      }
+      return 0;
+    }
 
-		// joue une partie aléatoire en partant du noeud sélectionné, puis met à jour les statistiques du chemin parcouru
-/*		public void SimulatePlay (Node node)
+    // joue une partie aléatoire en partant du noeud sélectionné, puis met à jour les statistiques du chemin parcouru
+    /*		public void SimulatePlay (Node node)
 		{
 			// ligne et colonne dans laquelle vient d'être posée la pièce
 			int moveLine = 0;
@@ -203,6 +232,6 @@ namespace ConnectFour
 				}
 			}
 		}*/
-	}
+  }
 }
 

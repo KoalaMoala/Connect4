@@ -6,7 +6,8 @@ using System;
 
 namespace ConnectFour
 {
-  public class Field {
+  public class Field
+  {
 
     enum Piece
     {
@@ -16,13 +17,15 @@ namespace ConnectFour
     }
 
     private int numRows;
+
     public int NumRows {
-      get {return numRows;}
+      get { return numRows; }
     }
-    
+
     private int numColumns;
+
     public int NumColumns {
-      get {return numColumns;}
+      get { return numColumns; }
     }
 
     private int numPiecesToWin;
@@ -32,18 +35,20 @@ namespace ConnectFour
     protected int[,] field;
 
     private bool isPlayersTurn;
+
     public bool IsPlayersTurn {
       get { return isPlayersTurn; }
     }
 
-  	// Field constructor
-    public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally) {
+    // Field constructor
+    public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally)
+    {
       this.numRows = numRows;
       this.numColumns = numColumns;
       this.numPiecesToWin = numPiecesToWin;
       this.allowDiagonally = allowDiagonally;
 
-      isPlayersTurn = System.Convert.ToBoolean(UnityEngine.Random.Range (0, 1));
+      isPlayersTurn = System.Convert.ToBoolean (UnityEngine.Random.Range (0, 1));
 
       field = new int[numColumns, numRows];
       for (int x = 0; x < numColumns; x++) {
@@ -51,9 +56,10 @@ namespace ConnectFour
           field [x, y] = (int)Piece.Empty;
         }
       }
-  	}
+    }
 
-    public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally, bool isPlayersTurn, int[,] field) {
+    public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally, bool isPlayersTurn, int[,] field)
+    {
       this.numRows = numRows;
       this.numColumns = numColumns;
       this.numPiecesToWin = numPiecesToWin;
@@ -69,15 +75,13 @@ namespace ConnectFour
     }
   	
     // Renvoie la liste des cases où le joueur peut ajouter une pièce
-    public Dictionary<int, int> GetPossibleCells() {
-      Dictionary<int, int> possibleCells = new Dictionary<int, int>();
-      for (int x = 0; x < numColumns; x++)
-      {
-        for(int y = numRows - 1; y >= 0; y--)
-        {
-          if(field[x, y] == (int)Piece.Empty)
-          {
-            possibleCells.Add(x, y);
+    public Dictionary<int, int> GetPossibleCells ()
+    {
+      Dictionary<int, int> possibleCells = new Dictionary<int, int> ();
+      for (int x = 0; x < numColumns; x++) {
+        for (int y = numRows - 1; y >= 0; y--) {
+          if (field [x, y] == (int)Piece.Empty) {
+            possibleCells.Add (x, y);
             break;
           }
         }
@@ -86,15 +90,13 @@ namespace ConnectFour
     }
 
     // Renvoie la liste des colonnes où le joueur peut lâcher une pièce
-    public List<int> GetPossibleDrops() {
-      List<int> possibleDrops = new List<int>();
-      for (int x = 0; x < numColumns; x++)
-      {
-        for(int y = numRows - 1; y >= 0; y--)
-        {
-          if(field[x, y] == (int)Piece.Empty)
-          {
-            possibleDrops.Add(x);
+    public List<int> GetPossibleDrops ()
+    {
+      List<int> possibleDrops = new List<int> ();
+      for (int x = 0; x < numColumns; x++) {
+        for (int y = numRows - 1; y >= 0; y--) {
+          if (field [x, y] == (int)Piece.Empty) {
+            possibleDrops.Add (x);
             break;
           }
         }
@@ -104,29 +106,29 @@ namespace ConnectFour
 
 
     // TODO : renvoie le meilleur mouvement
-    public int GetBestMove() {
+    public int GetBestMove ()
+    {
       return 0;
     }
      
     // renvoie un mouvement aléatoire parmi tous ceux possibles
-    public int GetRandomMove() {
-      List<int> moves = GetPossibleDrops();
+    public int GetRandomMove ()
+    {
+      List<int> moves = GetPossibleDrops ();
 
-      if(moves.Count > 0)
-      {
-        return moves[UnityEngine.Random.Range (0, moves.Count)];
+      if (moves.Count > 0) {
+        return moves [UnityEngine.Random.Range (0, moves.Count)];
       }
       return -1;
     }
 
     // Lâche une pièce dans la colonne i, renvoie la ligne où elle tombe
-    public int DropInColumn(int col) {
-      for(int i = numRows-1; i >= 0; i--)
-      {
-        if(field[col, i] == 0)
-        {
+    public int DropInColumn (int col)
+    {
+      for (int i = numRows - 1; i >= 0; i--) {
+        if (field [col, i] == 0) {
 //        foundFreeCell = true;
-          field[col, i] = isPlayersTurn ? (int)Piece.Blue : (int)Piece.Red;
+          field [col, i] = isPlayersTurn ? (int)Piece.Blue : (int)Piece.Red;
 //        endPosition = new Vector3(x, i * -1, startPosition.z);
           return i;
         }
@@ -135,12 +137,14 @@ namespace ConnectFour
     }
 
     // Alterne de joueur
-    public void SwitchPlayer() {
+    public void SwitchPlayer ()
+    {
       isPlayersTurn = !isPlayersTurn;
     }
 
     // Vérifie si la partie est gagnée (se référer à isPlayerTurn pour savoir qui est le gagnant)
-    public bool CheckForWinner () {
+    public bool CheckForWinner ()
+    {
       for (int x = 0; x < numColumns; x++) {
         for (int y = 0; y < numRows; y++) {
           // Get the Laymask to Raycast against, if its Players turn only include
@@ -206,12 +210,11 @@ namespace ConnectFour
     }
 
     // Vérifie si la grille contient encore des cellules vides
-    public bool ContainsEmptyCell() {
-      for(int x = 0; x < numColumns; x++)
-      {
-        for(int y = 0; y < numRows; y++)
-        {
-          if(field[x, y] == (int)Piece.Empty)
+    public bool ContainsEmptyCell ()
+    {
+      for (int x = 0; x < numColumns; x++) {
+        for (int y = 0; y < numRows; y++) {
+          if (field [x, y] == (int)Piece.Empty)
             return true;
         }
       }
@@ -219,7 +222,8 @@ namespace ConnectFour
     }
 
     // Execute une copie profonde de l'état du jeu
-    public Field Clone() {
+    public Field Clone ()
+    {
       return new Field (numRows, numColumns, numPiecesToWin, allowDiagonally, isPlayersTurn, field);
     }
   }
