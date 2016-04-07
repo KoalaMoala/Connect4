@@ -162,11 +162,7 @@ namespace ConnectFour
         MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
       }
 //      Debug.Log (MonteCarloSearchTree.simulatedStateField.ToString ());
-<<<<<<< HEAD
-      return false;
-=======
 			return true;
->>>>>>> 226d50d98158c72989d137c43ac0add33d765379
     }
 
     /// <summary>

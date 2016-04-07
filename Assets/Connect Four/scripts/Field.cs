@@ -227,7 +227,7 @@ namespace ConnectFour
     }
 
     // Vérifie si la partie a été gagné en spécifiance quel est le dernier pion joué
-    public bool CheckForVictory (int x, int y)
+    public bool CheckForVictory ()
     {
       int colour = field [dropColumn, dropRow];
       if (colour == 0) {
@@ -240,7 +240,7 @@ namespace ConnectFour
 
       //check horizontal alignment
       for(int i = 1; i <= numPiecesToWin; i++) {
-        if (rightDirection && dropRow + i < numColumns) {
+        if (rightDirection && dropRow + i < numRows) {
           if (field [dropColumn, dropRow + i] == colour)
             currentAlignment++;
           else
@@ -259,14 +259,55 @@ namespace ConnectFour
       }
 
       //reset var
-      rightDirection = true;
-      leftDirection = true;
+      bool bottomDirection = true;
+      bool upDirection = true;
       currentAlignment = 1;
 
       //check vertical alignment
+      for(int i = 1; i <= numPiecesToWin; i++) {
+        if (upDirection && dropColumn + i < numColumns) {
+          if (field [dropColumn + i , dropRow] == colour)
+            currentAlignment++;
+          else
+            upDirection = false;
+        }
+
+        if (bottomDirection && dropColumn - i >= 0) {
+          if (field [dropColumn - i, dropRow] == colour)
+            currentAlignment++;
+          else
+            bottomDirection = false;
+        }
+
+        if (currentAlignment >= numPiecesToWin)
+          return true;
+      }
 
       //check diagonal alignment
       if (allowDiagonally) {
+        //reset var
+        bool bottomUpDirection = true;
+        bool upBottomDirection = true;
+        currentAlignment = 1;
+
+        for(int i = 1; i <= numPiecesToWin; i++) {
+          if (bottomUpDirection && dropColumn + i < numColumns && dropRow + i < numRows) {
+            if (field [dropColumn + i, dropRow + i] == colour)
+              currentAlignment++;
+            else
+              bottomUpDirection = false;
+          }
+
+          if (upBottomDirection && dropColumn - i >= 0 && dropRow - i >= 0 ) {
+            if (field [dropColumn - i, dropRow - i] == colour)
+              currentAlignment++;
+            else
+              upBottomDirection = false;
+          }
+
+          if (currentAlignment >= numPiecesToWin)
+            return true;
+        }
       }
 
       return false;
