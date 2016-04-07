@@ -122,7 +122,7 @@ namespace ConnectFour
     GameObject SpawnPiece ()
     {
       Vector3 spawnPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-					
+
       if (!field.IsPlayersTurn) {
         /*			Dictionary<int, int> moves = field.GetPossibleMoves();
 
@@ -135,7 +135,9 @@ namespace ConnectFour
 					if(defaultAI)
 					column = Enumerable.ToList(moves.Keys)[Random.Range (0, moves.Count)];
 					else*/
-        int column = field.GetRandomMove ();
+				MonteCarloSearchTree mcst = new MonteCarloSearchTree ();
+        // int column = field.GetRandomMove ();
+				int column = mcst.FindBestMove(field);
 					
         spawnPos = new Vector3 (column, 0, 0);
       }

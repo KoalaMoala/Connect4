@@ -40,6 +40,12 @@ namespace ConnectFour
       get { return isPlayersTurn; }
     }
 
+		private int piecesNumber = 0;
+
+		public int PiecesNumber {
+			get { return piecesNumber; }
+		}
+
     // Field constructor
     public Field (int numRows, int numColumns, int numPiecesToWin, bool allowDiagonally)
     {
@@ -130,6 +136,7 @@ namespace ConnectFour
 //        foundFreeCell = true;
           field [col, i] = isPlayersTurn ? (int)Piece.Blue : (int)Piece.Red;
 //        endPosition = new Vector3(x, i * -1, startPosition.z);
+					piecesNumber += 1;
           return i;
         }
       }
