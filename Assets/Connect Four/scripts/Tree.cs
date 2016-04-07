@@ -96,13 +96,13 @@ namespace ConnectFour
     {
       //check for end game
 			if (!MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () || MonteCarloSearchTree.simulatedStateField.CheckForWinner ()) {
-        return null;
+        return this;
       }
 
       //is this node fully expanded?
-			if (children.Count < MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ().Count) {
+			/*if (children.Count < MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ().Count) {
         return this;
-      }
+      }*/
 
       Node bestNode = null;
 
