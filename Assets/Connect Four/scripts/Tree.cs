@@ -132,7 +132,7 @@ namespace ConnectFour
           drops.Remove (column);
       }
       // Gets a line to play on.
-      int colToPlay = drops[ UnityEngine.Random.Range (0, drops.Count-1) ]; 
+      int colToPlay = drops[ UnityEngine.Random.Range (0, drops.Count) ]; 
       Node n = new Node (this);
       // Adds the child to the tree
 			addChild (n, colToPlay);
