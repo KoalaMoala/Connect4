@@ -99,11 +99,6 @@ namespace ConnectFour
         return this;
       }
 
-      //is this node fully expanded?
-			/*if (children.Count < MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ().Count) {
-        return this;
-      }*/
-
       Node bestNode = null;
 
 			// If not all plays have been tried
@@ -132,7 +127,7 @@ namespace ConnectFour
           drops.Remove (column);
       }
       // Gets a line to play on.
-      int colToPlay = UnityEngine.Random.Range (0, drops.Count);
+      int colToPlay = drops[ UnityEngine.Random.Range (0, drops.Count) ]; 
       Node n = new Node (this);
       // Adds the child to the tree
 			addChild (n, colToPlay);
@@ -246,56 +241,6 @@ namespace ConnectFour
 				
 			return choosedColumn;
     }
-
-    // joue une partie aléatoire en partant du noeud sélectionné, puis met à jour les statistiques du chemin parcouru
-    /*		public void SimulatePlay (Node node)
-		{
-			// ligne et colonne dans laquelle vient d'être posée la pièce
-			int moveLine = 0;
-			int moveColumn = 0;
-			bool turn = true;
-			// copie de la liste parents-enfants
-			//Dictionary<int, Node> simulatedchilds = node.getChildren ();
-			// tant que la partie n'est pas terminée
-			while (node.getField ().CheckForWinner()) {
-				// on sélectionne un coup aléatoire dans la liste des coups possibles et on le joue
-				moveColumn = node.getField ().GetRandomMove ();
-				moveLine = node.getField ().DropInColumn (moveColumn);
-				//simulatedchilds.Add (movecolumn, new Node (node.getField (), turn));
-				// on passe au tour de l'autre joueur
-				node.getField ().SwitchPlayer ();
-				if (turn == true) {
-					turn = false;
-				} else {
-					turn = true;
-				}
-			}
-				
-			// mise à jour des statistiques pour tout le chemin traversé
-			foreach (Node n in node.getChildren()) {
-
-				// le joueur actif (ordinateur) a gagné
-				if (n.getField ().isPlayersTurn == true) {
-					// si le noeud appartient au joueur actif
-					if (n.getTurn () == true) {
-						n.setWins (node.getWins () + 1);
-						n.setPlays (node.getPlays () + 1);
-					} else {
-						n.setPlays (node.getPlays () + 1);
-					}
-				} 
-			// le joueur adverse a gagné
-			else {
-					// si le noeud appartient au joueur actif
-					if (n.getTurn () == true) {
-						n.setPlays (node.getPlays () + 1);
-					} else {
-						n.setWins (node.getWins () + 1);
-						n.setPlays (node.getPlays () + 1);
-					}
-				}
-			}
-		}*/
   }
 }
 
