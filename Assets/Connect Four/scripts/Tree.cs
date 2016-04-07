@@ -35,9 +35,9 @@ namespace ConnectFour
     Node parent { get; set; }
     // on associe état enfant à l'action qui mène à cette état
     // Dictionary<int, Node> children;
-		Dictionary<Node, int> children;
+    Dictionary<Node, int> children;
     // référence vers le jeu utilisé pour la simulation
-		// public Field field;
+    // public Field field;
 
     /*public Node (Field field, Node parentNode = null)
     {
@@ -49,16 +49,16 @@ namespace ConnectFour
       parent = parentNode;
     }*/
 
-		public Node (Node parentNode = null)
-		{
-			wins = 0;
-			plays = 0;
-			this.isPlayersTurn = MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
-			// this.field = field;
-			// children = new Dictionary<int, Node> ();
-			children = new Dictionary<Node, int> ();
-			parent = parentNode;
-		}
+    public Node (Node parentNode = null)
+    {
+      wins = 0;
+      plays = 0;
+      this.isPlayersTurn = MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
+      // this.field = field;
+      // children = new Dictionary<int, Node> ();
+      children = new Dictionary<Node, int> ();
+      parent = parentNode;
+    }
 
     /// <summary>
     /// Adds a child to the node.
@@ -67,25 +67,27 @@ namespace ConnectFour
     /// <param name="line">The line number used to get to this child play</param>
     public void addChild (Node node, int line)
     {
-			children.Add (node, line);
+      children.Add (node, line);
     }
 
-		/// <summary>
-		/// Gets the child action number.
-		/// </summary>
-		/// <returns>The child action.</returns>
-		/// <param name="node">A node.</param>
-		public int getChildAction(Node node) {
-			return children [node];
-		}
+    /// <summary>
+    /// Gets the child action number.
+    /// </summary>
+    /// <returns>The child action.</returns>
+    /// <param name="node">A node.</param>
+    public int getChildAction (Node node)
+    {
+      return children [node];
+    }
 
-		/// <summary>
-		/// Gets the children number.
-		/// </summary>
-		/// <returns>The children number.</returns>
-		public int getChildrenNumber() {
-			return children.Count;
-		}
+    /// <summary>
+    /// Gets the children number.
+    /// </summary>
+    /// <returns>The children number.</returns>
+    public int getChildrenNumber ()
+    {
+      return children.Count;
+    }
 
     /// <summary>
     /// Select a node to expand in the current MCTS
@@ -96,20 +98,20 @@ namespace ConnectFour
     public Node Select (int nbSimulation)
     {
       //check for end game
-			if (!MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () || MonteCarloSearchTree.simulatedStateField.CheckForVictory ()) {
+      if (!MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () || MonteCarloSearchTree.simulatedStateField.CheckForVictory ()) {
         return this;
       }
 
-			// If not all plays have been tried
-      if (children.Keys.Count != MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ().Count )
-				return this;
+      // If not all plays have been tried
+      if (children.Keys.Count != MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ().Count)
+        return this;
       
       Node bestNode = null;
-			bestNode = selectBestChild (nbSimulation);
+      bestNode = selectBestChild (nbSimulation);
       // TODO : Evaluer l'ensemble des enfants et appeler récursivement Select dessus
       // (ne pas oublier d'appeler field.dropInColumn(meilleurMouvement) pour mettre à jour le field
-			MonteCarloSearchTree.simulatedStateField.DropInColumn (children[bestNode]);
-			MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
+      MonteCarloSearchTree.simulatedStateField.DropInColumn (children [bestNode]);
+      MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
       return bestNode.Select (nbSimulation);
     }
 
@@ -125,7 +127,7 @@ namespace ConnectFour
         return this;
 
       // Copy of the possible plays list
-			List<int> drops = new List<int> (MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ());
+      List<int> drops = new List<int> (MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ());
 
       // For each available plays, remove the ones that have already been play.
       foreach (int column in children.Values) {
@@ -133,12 +135,12 @@ namespace ConnectFour
           drops.Remove (column);
       }
       // Gets a line to play on.
-      int colToPlay = drops[ UnityEngine.Random.Range (0, drops.Count) ]; 
+      int colToPlay = drops [UnityEngine.Random.Range (0, drops.Count)]; 
       Node n = new Node (this);
       // Adds the child to the tree
-			addChild (n, colToPlay);
-			MonteCarloSearchTree.simulatedStateField.DropInColumn (colToPlay);
-			MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
+      addChild (n, colToPlay);
+      MonteCarloSearchTree.simulatedStateField.DropInColumn (colToPlay);
+      MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
       return n;
     }
 
@@ -151,16 +153,16 @@ namespace ConnectFour
       if (MonteCarloSearchTree.simulatedStateField.CheckForVictory ()) {
         return !MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
       }
-			while (MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell ()) {
-				int column = MonteCarloSearchTree.simulatedStateField.GetRandomMove ();
-				MonteCarloSearchTree.simulatedStateField.DropInColumn (column);
+      while (MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell ()) {
+        int column = MonteCarloSearchTree.simulatedStateField.GetRandomMove ();
+        MonteCarloSearchTree.simulatedStateField.DropInColumn (column);
         if (MonteCarloSearchTree.simulatedStateField.CheckForVictory ()) {
           return MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
         }
-				MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
+        MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
       }
 //      Debug.Log (MonteCarloSearchTree.simulatedStateField.ToString ());
-			return false;
+      return false;
     }
 
     /// <summary>
@@ -178,22 +180,23 @@ namespace ConnectFour
       }
     }
 
-		/// <summary>
-		/// Selects the best child from this node with UBC1 technique.
-		/// </summary>
-		/// <returns>The best child.</returns>
-		public Node selectBestChild (int nbSimulation) {
-			double maxValue = -1;
-			Node bestNode = null;
-			foreach (Node child in children.Keys) {
-				double evaluation = child.wins / child.plays + Math.Sqrt (2 * Math.Log (nbSimulation) / child.plays);
-				if (maxValue < evaluation) {
-					maxValue = evaluation;
-					bestNode = child;
-				}
-			}
-			return bestNode;
-		}
+    /// <summary>
+    /// Selects the best child from this node with UBC1 technique.
+    /// </summary>
+    /// <returns>The best child.</returns>
+    public Node selectBestChild (int nbSimulation)
+    {
+      double maxValue = -1;
+      Node bestNode = null;
+      foreach (Node child in children.Keys) {
+        double evaluation = child.wins / child.plays + Math.Sqrt (2 * Math.Log (nbSimulation) / child.plays);
+        if (maxValue < evaluation) {
+          maxValue = evaluation;
+          bestNode = child;
+        }
+      }
+      return bestNode;
+    }
 
     public int MostSelectedMove ()
     {
@@ -202,9 +205,9 @@ namespace ConnectFour
       Debug.Log ("Child selection :");
       foreach (var child in children) {
         Debug.Log (child.Value + " - " + child.Key.Wins + " - " + child.Key.Plays);
-        if (child.Key.Wins/child.Key.Plays > maxValue) {
+        if (child.Key.Wins / child.Key.Plays > maxValue) {
           bestMove = child.Value;
-          maxValue = child.Key.Wins/child.Key.Plays;
+          maxValue = child.Key.Wins / child.Key.Plays;
         }
       }
       return bestMove;
@@ -231,29 +234,29 @@ namespace ConnectFour
     public int FindBestMove (Field field)
     {
       currentStateField = field;
-			simulatedStateField = currentStateField.Clone ();
-			rootNode = new Node ();
+      simulatedStateField = currentStateField.Clone ();
+      rootNode = new Node ();
 
       Node selectedNode;
       Node expandedNode;
-			int choosedColumn = -1;
-			// Inutile de lancer MCST le premier tour
-			if (field.PiecesNumber != 0) {
-				int nbIteration = 1000;
-				for (int i = 0; i < nbIteration; i++) {
-					// copie profonde
-					simulatedStateField = currentStateField.Clone ();
+      int choosedColumn = -1;
+      // Inutile de lancer MCST le premier tour
+      if (field.PiecesNumber != 0) {
+        int nbIteration = 1000;
+        for (int i = 0; i < nbIteration; i++) {
+          // copie profonde
+          simulatedStateField = currentStateField.Clone ();
 
-					selectedNode = rootNode.Select (rootNode.Plays);
-					expandedNode = selectedNode.Expand ();
-					expandedNode.BackPropagate (expandedNode.Simulate ());
-				}
-				//choosedColumn = rootNode.getChildAction (rootNode.selectBestChild (rootNode.Plays));
-        choosedColumn = rootNode.MostSelectedMove();
-			} else
-				choosedColumn = field.GetRandomMove ();
+          selectedNode = rootNode.Select (rootNode.Plays);
+          expandedNode = selectedNode.Expand ();
+          expandedNode.BackPropagate (expandedNode.Simulate ());
+        }
+        //choosedColumn = rootNode.getChildAction (rootNode.selectBestChild (rootNode.Plays));
+        choosedColumn = rootNode.MostSelectedMove ();
+      } else
+        choosedColumn = field.GetRandomMove ();
 				
-			return choosedColumn;
+      return choosedColumn;
     }
   }
 }
