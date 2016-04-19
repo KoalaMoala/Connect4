@@ -31,15 +31,16 @@ namespace ConnectFour
     public Dictionary<Node, int> children;
     // référence vers le jeu utilisé pour la simulation
 
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ConnectFour.Node"/> class.
 		/// </summary>
 		/// <param name="parentNode">Parent node.</param>
-    public Node (Node parentNode = null)
+    public Node (bool isPlayerTurn = false, Node parentNode = null)
     {
       wins = 0;
       plays = 0;
-      this.isPlayersTurn = MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
+      this.isPlayersTurn = isPlayerTurn;
       // this.field = field;
       // children = new Dictionary<int, Node> ();
       children = new Dictionary<Node, int> ();
@@ -81,37 +82,37 @@ namespace ConnectFour
     /// <returns>
     /// The selected node
     /// </returns>
-    public Node Select (int nbSimulation)
+    public Node SelectNodeToExpand (int nbSimulation, Field simulatedField)
     {
       //check for end game
-      if (!MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () || MonteCarloSearchTree.simulatedStateField.CheckForVictory ()) {
+      if (!simulatedField.ContainsEmptyCell () || simulatedField.CheckForVictory ()) {
         return this;
       }
 
       // If not all plays have been tried
-      if (children.Keys.Count != MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ().Count)
+      if (children.Keys.Count != simulatedField.GetPossibleDrops ().Count)
         return this;
       
       Node bestNode = null;
       bestNode = selectBestChild (nbSimulation);
-      MonteCarloSearchTree.simulatedStateField.DropInColumn (children [bestNode]);
-      MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
-      return bestNode.Select (nbSimulation);
+      simulatedField.DropInColumn (children [bestNode]);
+      simulatedField.SwitchPlayer ();
+      return bestNode.SelectNodeToExpand (nbSimulation, simulatedField);
     }
 
     /// <summary>
     /// Instantiate a child below the selected node and attach it to the tree.
     /// </summary>
     /// <returns>The new node created</returns>
-    public Node Expand ()
+    public Node Expand (Field simulatedField)
     {
 
       //if selected node is a leaf
-      if (!MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell () || MonteCarloSearchTree.simulatedStateField.CheckForVictory ())
+      if (!simulatedField.ContainsEmptyCell () || simulatedField.CheckForVictory ())
         return this;
 
       // Copy of the possible plays list
-      List<int> drops = new List<int> (MonteCarloSearchTree.simulatedStateField.GetPossibleDrops ());
+      List<int> drops = new List<int> (simulatedField.GetPossibleDrops ());
 
       // For each available plays, remove the ones that have already been play.
       foreach (int column in children.Values) {
@@ -120,11 +121,11 @@ namespace ConnectFour
       }
       // Gets a line to play on.
       int colToPlay = drops [UnityEngine.Random.Range (0, drops.Count)]; 
-      Node n = new Node (this);
+      Node n = new Node (simulatedField.IsPlayersTurn, this);
       // Adds the child to the tree
       addChild (n, colToPlay);
-      MonteCarloSearchTree.simulatedStateField.DropInColumn (colToPlay);
-      MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
+      simulatedField.DropInColumn (colToPlay);
+      simulatedField.SwitchPlayer ();
       return n;
     }
 
@@ -132,18 +133,19 @@ namespace ConnectFour
     /// Simulate a game play based on the specified baseNode.
     /// </summary>
     /// <returns>True if the simulation leads to a win for the main player</returns>
-    public bool Simulate ()
+    public bool Simulate (Field simulatedField)
     {
-      if (MonteCarloSearchTree.simulatedStateField.CheckForVictory ()) {
-        return !MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
+      if (simulatedField.CheckForVictory ()) {
+        return !simulatedField.IsPlayersTurn;
       }
-      while (MonteCarloSearchTree.simulatedStateField.ContainsEmptyCell ()) {
-        int column = MonteCarloSearchTree.simulatedStateField.GetRandomMove ();
-        MonteCarloSearchTree.simulatedStateField.DropInColumn (column);
-        if (MonteCarloSearchTree.simulatedStateField.CheckForVictory ()) {
-          return MonteCarloSearchTree.simulatedStateField.IsPlayersTurn;
+      while (simulatedField.ContainsEmptyCell ()) {
+        int column = simulatedField.GetRandomMove ();
+        simulatedField.DropInColumn (column);
+
+        if (simulatedField.CheckForVictory ()) {
+          return simulatedField.IsPlayersTurn;
         }
-        MonteCarloSearchTree.simulatedStateField.SwitchPlayer ();
+        simulatedField.SwitchPlayer ();
       }
 			return true;
     }
@@ -203,56 +205,27 @@ namespace ConnectFour
   {
     // correspond à l'état actuel du jeu
     // /!\ c'est une référence vers l'état du jeu, NE PAS MODIFIER
-    readonly Field currentStateField;
+    public readonly Field currentStateField;
     // état du jeu utilisé pour la simulation
-    public static Field simulatedStateField;
+    public Field simulatedStateField;
     // Pour éviter de faire des copies profondes du jeu pour chaque noeud
     // je pense que chaque noeud doit juste avoir une référence vers cet état
     // lors de chaque itération de l'arbre, copier le contenu de currentStateField
     // dans simulatedStateField (fonction Clone()), puis pour itérer sur l'arbre
     // faire comme si on jouait avec ce Field (fonction DropInColumn(int)).
 
-    private int nbIteration = 1000;
+    public int nbIteration = 1000;
 
     //threadpool attribute (needed for parallel processing)
-    private ManualResetEvent _doneEvent;
+    public ManualResetEvent _doneEvent;
 
     // racine de l'arbre
-    private Node rootNode;
+    public Node rootNode;
 
     public MonteCarloSearchTree(Field field, ManualResetEvent doneEvent)
     {
       _doneEvent = doneEvent;
       currentStateField = field;
-    }
-
-    public Node getRootNode(){
-      return rootNode;
-    }
-
-		/// <summary>
-		/// Expands the tree.
-		/// </summary>
-		/// <returns>Root node of the tree.</returns>
-    public void ExpandTree ()
-    {
-      simulatedStateField = currentStateField.Clone ();
-      rootNode = new Node ();
-
-      Node selectedNode;
-      Node expandedNode;
-      int choosedColumn = -1;
-
-      for (int i = 0; i < nbIteration; i++) {
-        // copie profonde
-        simulatedStateField = currentStateField.Clone ();
-
-        selectedNode = rootNode.Select (rootNode.plays);
-        expandedNode = selectedNode.Expand ();
-        expandedNode.BackPropagate (expandedNode.Simulate ());
-      }
-        
-      _doneEvent.Set ();
     }
   }
 }

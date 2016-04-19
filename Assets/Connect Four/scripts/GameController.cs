@@ -126,9 +126,10 @@ namespace ConnectFour
 
         int column;
 
+
         // Inutile de lancer MCST le premier tour
         if (field.PiecesNumber != 0) {
-          
+          Debug.Log ("bonjour");
           // One event is used for each MCTS.
           ManualResetEvent[] doneEvents = new ManualResetEvent[parallelProcesses];
           MonteCarloSearchTree[] trees = new MonteCarloSearchTree[parallelProcesses];
@@ -136,17 +137,18 @@ namespace ConnectFour
           for (int i = 0; i < parallelProcesses; i++) {
             doneEvents [i] = new ManualResetEvent (false);
             trees[i] = new MonteCarloSearchTree (field, doneEvents [i]);
-            trees [i].ExpandTree ();
+            ThreadPool.QueueUserWorkItem( new WaitCallback(ExpandTree), trees [i]);
           }
+          Debug.Log ("a");
 				
-          WaitHandle.WaitAll (doneEvents);
+          WaitHandle.WaitAny(doneEvents);
 
           //regrouping all results
           Node rootNode = new Node ();
 
           for (int i = 0; i < parallelProcesses; i++) {
             
-            foreach (var child in trees[i].getRootNode().children) {
+            foreach (var child in trees[i].rootNode.children) {
 
               if (!rootNode.children.ContainsValue (child.Value)) {
                 Node rootChild = new Node ();
@@ -177,6 +179,32 @@ namespace ConnectFour
                     Quaternion.identity) as GameObject;
 
       return g;
+    }
+
+    /// <summary>
+    /// Expands the tree.
+    /// </summary>
+    /// <returns>Root node of the tree.</returns>
+    public static void ExpandTree (System.Object t)
+    {
+      var tree = (MonteCarloSearchTree) t;
+      tree.simulatedStateField = tree.currentStateField.Clone ();
+      tree.rootNode = new Node (tree.simulatedStateField.IsPlayersTurn);
+
+      Node selectedNode;
+      Node expandedNode;
+      int choosedColumn = -1;
+
+      for (int i = 0; i < tree.nbIteration; i++) {
+        // copie profonde
+        tree.simulatedStateField = tree.currentStateField.Clone ();
+
+        selectedNode = tree.rootNode.SelectNodeToExpand (tree.rootNode.plays, tree.simulatedStateField);
+        expandedNode = selectedNode.Expand (tree.simulatedStateField);
+        expandedNode.BackPropagate (expandedNode.Simulate (tree.simulatedStateField));
+      }
+
+      tree._doneEvent.Set ();
     }
 
     void UpdatePlayAgainButton ()
