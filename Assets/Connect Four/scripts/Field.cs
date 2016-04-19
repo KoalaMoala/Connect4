@@ -124,7 +124,8 @@ namespace ConnectFour
       List<int> moves = GetPossibleDrops ();
 
       if (moves.Count > 0) {
-        return moves [UnityEngine.Random.Range (0, moves.Count)];
+        //TODO parallel random needed here
+        return moves [0];
       }
       return -1;
     }

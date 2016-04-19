@@ -193,7 +193,6 @@ namespace ConnectFour
 
       Node selectedNode;
       Node expandedNode;
-      int choosedColumn = -1;
 
       for (int i = 0; i < tree.nbIteration; i++) {
         // copie profonde
