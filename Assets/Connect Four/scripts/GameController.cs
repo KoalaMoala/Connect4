@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace ConnectFour
 {
@@ -12,6 +13,8 @@ namespace ConnectFour
     public int numRows = 4;
     [Range (3, 8)]
     public int numColumns = 4;
+    [Range (1, 8)]
+    public int parallelProcesses = 2;
 
     [Tooltip ("How many pieces have to be connected to win.")]
     public int numPiecesToWin = 4;
@@ -120,8 +123,48 @@ namespace ConnectFour
       Vector3 spawnPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 
       if (!field.IsPlayersTurn) {
-				MonteCarloSearchTree mcst = new MonteCarloSearchTree ();
-				int column = mcst.FindBestMove(field);
+
+        int column;
+
+        // Inutile de lancer MCST le premier tour
+        if (field.PiecesNumber != 0) {
+          
+          // One event is used for each MCTS.
+          ManualResetEvent[] doneEvents = new ManualResetEvent[parallelProcesses];
+          MonteCarloSearchTree[] trees = new MonteCarloSearchTree[parallelProcesses];
+
+          for (int i = 0; i < parallelProcesses; i++) {
+            doneEvents [i] = new ManualResetEvent (false);
+            trees[i] = new MonteCarloSearchTree (field, doneEvents [i]);
+            trees [i].ExpandTree ();
+          }
+				
+          WaitHandle.WaitAll (doneEvents);
+
+          //regrouping all results
+          Node rootNode = new Node ();
+
+          for (int i = 0; i < parallelProcesses; i++) {
+            
+            foreach (var child in trees[i].getRootNode().children) {
+
+              if (!rootNode.children.ContainsValue (child.Value)) {
+                Node rootChild = new Node ();
+                rootChild.wins = child.Key.wins;
+                rootChild.plays = child.Key.plays;
+                rootNode.children.Add (rootChild, child.Value);
+              } else {
+                Node rootChild = rootNode.children.First( p => p.Value == child.Value ).Key;
+                rootChild.wins += child.Key.wins;
+                rootChild.plays += child.Key.plays;
+              }
+            }
+          }
+
+          column = rootNode.MostSelectedMove ();
+        }
+        else
+          column = field.GetRandomMove ();
 					
         spawnPos = new Vector3 (column, 0, 0);
       }

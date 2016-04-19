@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace ConnectFour
 {
@@ -18,23 +19,16 @@ namespace ConnectFour
   public class Node
   {
     // le nombre de simulation gagnées depuis ce noeud
-    private int wins;
-
-    public int Wins {
-      get { return wins; }
-    }
+    public int wins { get; set; }
     // Le nombre de simulation jouées depuis ce noeud
-    private int plays;
+    public int plays { get; set; }
 
-    public int Plays {
-      get { return plays; }
-    }
     // vrai si c'est le joueur qui a appelé MCTS qui doit joueur à ce noeud
     bool isPlayersTurn { get; set; }
     // le noeud parent
     Node parent { get; set; }
     // on associe état enfant à l'action qui mène à cette état
-    Dictionary<Node, int> children;
+    public Dictionary<Node, int> children;
     // référence vers le jeu utilisé pour la simulation
 
 		/// <summary>
@@ -178,7 +172,7 @@ namespace ConnectFour
       double maxValue = -1;
       Node bestNode = null;
       foreach (Node child in children.Keys) {
-        double evaluation = (double)child.Wins / (double)child.Plays + Math.Sqrt (2 * Math.Log ((double)nbSimulation) / (double)child.Plays);
+        double evaluation = (double)child.wins / (double)child.plays + Math.Sqrt (2 * Math.Log ((double)nbSimulation) / (double)child.plays);
         if (maxValue < evaluation) {
           maxValue = evaluation;
           bestNode = child;
@@ -196,9 +190,9 @@ namespace ConnectFour
       double maxValue = -1;
       int bestMove = -1;
       foreach (var child in children) {
-        if ((double)child.Key.Wins/(double)child.Key.Plays > maxValue) {
+        if ((double)child.Key.wins/(double)child.Key.plays > maxValue) {
           bestMove = child.Value;
-          maxValue = (double)child.Key.Wins/(double)child.Key.Plays;
+          maxValue = (double)child.Key.wins/(double)child.Key.plays;
         }
       }
       return bestMove;
@@ -209,7 +203,7 @@ namespace ConnectFour
   {
     // correspond à l'état actuel du jeu
     // /!\ c'est une référence vers l'état du jeu, NE PAS MODIFIER
-    Field currentStateField;
+    readonly Field currentStateField;
     // état du jeu utilisé pour la simulation
     public static Field simulatedStateField;
     // Pour éviter de faire des copies profondes du jeu pour chaque noeud
@@ -218,39 +212,47 @@ namespace ConnectFour
     // dans simulatedStateField (fonction Clone()), puis pour itérer sur l'arbre
     // faire comme si on jouait avec ce Field (fonction DropInColumn(int)).
 
+    private int nbIteration = 1000;
+
+    //threadpool attribute (needed for parallel processing)
+    private ManualResetEvent _doneEvent;
+
     // racine de l'arbre
-    Node rootNode;
+    private Node rootNode;
+
+    public MonteCarloSearchTree(Field field, ManualResetEvent doneEvent)
+    {
+      _doneEvent = doneEvent;
+      currentStateField = field;
+    }
+
+    public Node getRootNode(){
+      return rootNode;
+    }
 
 		/// <summary>
-		/// Finds the best move.
+		/// Expands the tree.
 		/// </summary>
-		/// <returns>The best move column number.</returns>
-		/// <param name="field">The field used to find the move</param>
-    public int FindBestMove (Field field)
+		/// <returns>Root node of the tree.</returns>
+    public void ExpandTree ()
     {
-      currentStateField = field;
       simulatedStateField = currentStateField.Clone ();
       rootNode = new Node ();
 
       Node selectedNode;
       Node expandedNode;
       int choosedColumn = -1;
-      // Inutile de lancer MCST le premier tour
-      if (field.PiecesNumber != 0) {
-        int nbIteration = 1000;
-        for (int i = 0; i < nbIteration; i++) {
-          // copie profonde
-          simulatedStateField = currentStateField.Clone ();
 
-          selectedNode = rootNode.Select (rootNode.Plays);
-          expandedNode = selectedNode.Expand ();
-          expandedNode.BackPropagate (expandedNode.Simulate ());
-        }
-        choosedColumn = rootNode.MostSelectedMove ();
-      } else
-        choosedColumn = field.GetRandomMove ();
-				
-      return choosedColumn;
+      for (int i = 0; i < nbIteration; i++) {
+        // copie profonde
+        simulatedStateField = currentStateField.Clone ();
+
+        selectedNode = rootNode.Select (rootNode.plays);
+        expandedNode = selectedNode.Expand ();
+        expandedNode.BackPropagate (expandedNode.Simulate ());
+      }
+        
+      _doneEvent.Set ();
     }
   }
 }
