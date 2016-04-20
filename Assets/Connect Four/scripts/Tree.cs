@@ -215,18 +215,19 @@ namespace ConnectFour
     // dans simulatedStateField (fonction Clone()), puis pour itérer sur l'arbre
     // faire comme si on jouait avec ce Field (fonction DropInColumn(int)).
 
-    public int nbIteration = 1000;
+    public int nbIteration;
 
     //threadpool attribute (needed for parallel processing)
-    public ManualResetEvent _doneEvent;
+    public ManualResetEvent doneEvent;
 
     // racine de l'arbre
     public Node rootNode;
 
-    public MonteCarloSearchTree(Field field, ManualResetEvent doneEvent)
+    public MonteCarloSearchTree(Field field, ManualResetEvent _doneEvent, int _nbIteration)
     {
-      _doneEvent = doneEvent;
+      doneEvent = _doneEvent;
       currentStateField = field;
+      this.nbIteration = _nbIteration;
     }
   }
 }

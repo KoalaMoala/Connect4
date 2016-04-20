@@ -15,6 +15,8 @@ namespace ConnectFour
     public int numColumns = 4;
     [Range (1, 8)]
     public int parallelProcesses = 2;
+    [Range (100, 10000)]
+    public int MCTS_Iterations = 1000;
 
     [Tooltip ("How many pieces have to be connected to win.")]
     public int numPiecesToWin = 4;
@@ -135,7 +137,7 @@ namespace ConnectFour
 
           for (int i = 0; i < parallelProcesses; i++) {
             doneEvents [i] = new ManualResetEvent (false);
-            trees[i] = new MonteCarloSearchTree (field, doneEvents [i]);
+            trees[i] = new MonteCarloSearchTree (field, doneEvents [i], MCTS_Iterations);
             ThreadPool.QueueUserWorkItem( new WaitCallback(ExpandTree), trees [i]);
           }
 				
@@ -143,11 +145,11 @@ namespace ConnectFour
 
           //regrouping all results
           Node rootNode = new Node ();
+          string log = "";
 
           for (int i = 0; i < parallelProcesses; i++) {
 
-            string log = "( ";
-
+            log += "( ";
             foreach (var child in trees[i].rootNode.children) {
 
               log += (int) ( ((double) child.Key.wins / (double) child.Key.plays) * 100) + "% | ";
@@ -164,24 +166,23 @@ namespace ConnectFour
               }
             }
 
-            log.Remove(log.Length - 1);
-            log += " )";
-            Debug.Log (log);
+            log = log.Remove(log.Length-3, 3);
+            log += " )\n";
           }
 
           /****************************/
           /***** Log final result *****/
           /****************************/
 
-          string log2 = "\n( ";
+          string log2 = "( ";
           foreach (var child in rootNode.children) {
             log2 += (int) ( ((double) child.Key.wins / (double) child.Key.plays) * 100) + "% | ";
           }
-          log2.Remove(log2.Length - 1);
-          log2 += " )";
+          log2 = log2.Remove(log2.Length-3, 3);
+          log2 += " )\n";
+          log2 += "*********************************************\n";
+          Debug.Log (log);
           Debug.Log (log2);
-          Debug.Log ("");
-          Debug.Log ("");
 
           /****************************/
 
@@ -225,7 +226,7 @@ namespace ConnectFour
         expandedNode.BackPropagate (expandedNode.Simulate (tree.simulatedStateField));
       }
 
-      tree._doneEvent.Set ();
+      tree.doneEvent.Set ();
     }
 
     void UpdatePlayAgainButton ()
