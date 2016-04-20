@@ -120,8 +120,8 @@ namespace ConnectFour
           drops.Remove (column);
       }
       // Gets a line to play on.
-      //TODO get random back there
-      int colToPlay = drops [0]; 
+			System.Random r = new System.Random ();
+			int colToPlay = drops [r.Next(0, drops.Count)]; 
       Node n = new Node (simulatedField.IsPlayersTurn, this);
       // Adds the child to the tree
       addChild (n, colToPlay);

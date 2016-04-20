@@ -124,8 +124,8 @@ namespace ConnectFour
       List<int> moves = GetPossibleDrops ();
 
       if (moves.Count > 0) {
-        //TODO parallel random needed here
-        return moves [0];
+				System.Random r = new System.Random ();
+				return moves [r.Next(0, moves.Count)];
       }
       return -1;
     }
