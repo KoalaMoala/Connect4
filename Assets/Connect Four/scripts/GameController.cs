@@ -129,7 +129,6 @@ namespace ConnectFour
 
         // Inutile de lancer MCST le premier tour
         if (field.PiecesNumber != 0) {
-          Debug.Log ("bonjour");
           // One event is used for each MCTS.
           ManualResetEvent[] doneEvents = new ManualResetEvent[parallelProcesses];
           MonteCarloSearchTree[] trees = new MonteCarloSearchTree[parallelProcesses];
@@ -139,16 +138,19 @@ namespace ConnectFour
             trees[i] = new MonteCarloSearchTree (field, doneEvents [i]);
             ThreadPool.QueueUserWorkItem( new WaitCallback(ExpandTree), trees [i]);
           }
-          Debug.Log ("a");
 				
-          WaitHandle.WaitAny(doneEvents);
+          WaitHandle.WaitAll(doneEvents);
 
           //regrouping all results
           Node rootNode = new Node ();
 
           for (int i = 0; i < parallelProcesses; i++) {
-            
+
+            string log = "( ";
+
             foreach (var child in trees[i].rootNode.children) {
+
+              log += (int) ( ((double) child.Key.wins / (double) child.Key.plays) * 100) + "% | ";
 
               if (!rootNode.children.ContainsValue (child.Value)) {
                 Node rootChild = new Node ();
@@ -161,7 +163,27 @@ namespace ConnectFour
                 rootChild.plays += child.Key.plays;
               }
             }
+
+            log.Remove(log.Length - 1);
+            log += " )";
+            Debug.Log (log);
           }
+
+          /****************************/
+          /***** Log final result *****/
+          /****************************/
+
+          string log2 = "\n( ";
+          foreach (var child in rootNode.children) {
+            log2 += (int) ( ((double) child.Key.wins / (double) child.Key.plays) * 100) + "% | ";
+          }
+          log2.Remove(log2.Length - 1);
+          log2 += " )";
+          Debug.Log (log2);
+          Debug.Log ("");
+          Debug.Log ("");
+
+          /****************************/
 
           column = rootNode.MostSelectedMove ();
         }
