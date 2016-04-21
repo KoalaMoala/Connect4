@@ -64,6 +64,8 @@ namespace ConnectFour
     bool gameOver = false;
     bool isCheckingForWinner = false;
 
+		static System.Random r = new System.Random(); 
+
     // Use this for initialization
     void Start ()
     {
@@ -226,7 +228,6 @@ namespace ConnectFour
 
       Node selectedNode;
       Node expandedNode;
-			System.Random r = new System.Random();
 
       for (int i = 0; i < tree.nbIteration; i++) {
         // copie profonde
