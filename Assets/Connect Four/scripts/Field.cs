@@ -130,6 +130,17 @@ namespace ConnectFour
       return -1;
     }
 
+		// renvoie un mouvement aléatoire parmi tous ceux possibles
+		public int GetRandomMove (System.Random r)
+		{
+			List<int> moves = GetPossibleDrops ();
+
+			if (moves.Count > 0) {
+				return moves [r.Next(0, moves.Count)];
+			}
+			return -1;
+		}
+
     // Lâche une pièce dans la colonne i, renvoie la ligne où elle tombe
     public int DropInColumn (int col)
     {

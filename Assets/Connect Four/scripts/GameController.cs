@@ -15,7 +15,7 @@ namespace ConnectFour
     public int numColumns = 4;
     [Range (1, 8)]
     public int parallelProcesses = 2;
-    [Range (100, 10000)]
+    [Range (7, 10000)]
     public int MCTS_Iterations = 1000;
 
     [Tooltip ("Shows column number next to its probability.")]
@@ -218,7 +218,7 @@ namespace ConnectFour
     /// Expands the tree.
     /// </summary>
     /// <returns>Root node of the tree.</returns>
-    public static void ExpandTree (System.Object t)
+		public static void ExpandTree (System.Object t)
     {
       var tree = (MonteCarloSearchTree) t;
       tree.simulatedStateField = tree.currentStateField.Clone ();
@@ -226,14 +226,15 @@ namespace ConnectFour
 
       Node selectedNode;
       Node expandedNode;
+			System.Random r = new System.Random();
 
       for (int i = 0; i < tree.nbIteration; i++) {
         // copie profonde
         tree.simulatedStateField = tree.currentStateField.Clone ();
 
         selectedNode = tree.rootNode.SelectNodeToExpand (tree.rootNode.plays, tree.simulatedStateField);
-        expandedNode = selectedNode.Expand (tree.simulatedStateField);
-        expandedNode.BackPropagate (expandedNode.Simulate (tree.simulatedStateField));
+        expandedNode = selectedNode.Expand (tree.simulatedStateField, r);
+        expandedNode.BackPropagate (expandedNode.Simulate (tree.simulatedStateField, r));
       }
 
       tree.doneEvent.Set ();

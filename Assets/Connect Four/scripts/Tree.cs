@@ -94,7 +94,7 @@ namespace ConnectFour
         return this;
       
       Node bestNode = null;
-      bestNode = selectBestChild (nbSimulation);
+			bestNode = selectBestChild (nbSimulation);
       simulatedField.DropInColumn (children [bestNode]);
       simulatedField.SwitchPlayer ();
       return bestNode.SelectNodeToExpand (nbSimulation, simulatedField);
@@ -104,7 +104,7 @@ namespace ConnectFour
     /// Instantiate a child below the selected node and attach it to the tree.
     /// </summary>
     /// <returns>The new node created</returns>
-    public Node Expand (Field simulatedField)
+		public Node Expand (Field simulatedField, System.Random r)
     {
 
       //if selected node is a leaf
@@ -120,7 +120,7 @@ namespace ConnectFour
           drops.Remove (column);
       }
       // Gets a line to play on.
-			System.Random r = new System.Random ();
+			Debug.Log ("Count : " + drops.Count + ", Random : " + r.Next(0, drops.Count));
 			int colToPlay = drops [r.Next(0, drops.Count)]; 
       Node n = new Node (simulatedField.IsPlayersTurn, this);
       // Adds the child to the tree
@@ -134,13 +134,13 @@ namespace ConnectFour
     /// Simulate a game play based on the specified baseNode.
     /// </summary>
     /// <returns>True if the simulation leads to a win for the main player</returns>
-    public bool Simulate (Field simulatedField)
+		public bool Simulate (Field simulatedField, System.Random r)
     {
       if (simulatedField.CheckForVictory ()) {
         return !simulatedField.IsPlayersTurn;
       }
       while (simulatedField.ContainsEmptyCell ()) {
-        int column = simulatedField.GetRandomMove ();
+        int column = simulatedField.GetRandomMove (r);
         simulatedField.DropInColumn (column);
 
         if (simulatedField.CheckForVictory ()) {
