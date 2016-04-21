@@ -18,6 +18,9 @@ namespace ConnectFour
     [Range (100, 10000)]
     public int MCTS_Iterations = 1000;
 
+    [Tooltip ("Shows column number next to its probability.")]
+    public bool log_column = false;
+
     [Tooltip ("How many pieces have to be connected to win.")]
     public int numPiecesToWin = 4;
 
@@ -150,8 +153,13 @@ namespace ConnectFour
           for (int i = 0; i < parallelProcesses; i++) {
 
             log += "( ";
-            foreach (var child in trees[i].rootNode.children) {
+            var sortedChildren = (List<KeyValuePair<Node, int>>)trees [i].rootNode.children.ToList ();
+            sortedChildren.Sort((pair1,pair2) => pair1.Value.CompareTo(pair2.Value));
 
+            foreach (var child in sortedChildren) {
+
+              if (log_column)
+                log += child.Value + ": ";
               log += (int) ( ((double) child.Key.wins / (double) child.Key.plays) * 100) + "% | ";
 
               if (!rootNode.children.ContainsValue (child.Value)) {
@@ -176,6 +184,8 @@ namespace ConnectFour
 
           string log2 = "( ";
           foreach (var child in rootNode.children) {
+            if (log_column)
+              log2 += child.Value + ": ";
             log2 += (int) ( ((double) child.Key.wins / (double) child.Key.plays) * 100) + "% | ";
           }
           log2 = log2.Remove(log2.Length-3, 3);
