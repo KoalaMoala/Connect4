@@ -120,8 +120,7 @@ namespace ConnectFour
           drops.Remove (column);
       }
       // Gets a line to play on.
-			Debug.Log ("Count : " + drops.Count + ", Random : " + r.Next(0, drops.Count));
-			int colToPlay = drops [r.Next(0, drops.Count)]; 
+			int colToPlay = drops [r.Next(0, drops.Count)];
       Node n = new Node (simulatedField.IsPlayersTurn, this);
       // Adds the child to the tree
       addChild (n, colToPlay);
